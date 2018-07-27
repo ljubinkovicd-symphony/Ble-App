@@ -1,0 +1,17 @@
+{
+  "id": "37B2D155-A92F-7C8B-80D4-DC442534F5A1",
+  "rssi": -59,
+  "advertising": {
+    "serviceUUIDs": ["FE54"],
+    "serviceData": {
+      "FE54": {
+        "bytes": [1, 81, 48, 48, 66, 53, 49, 51, 55, 50, 65, 66, 67, 6],
+        "data": "AVEwMEI1MTM3MkFCQwY=",
+        "CDVType": "ArrayBuffer"
+      }
+    },
+    "isConnectable": true,
+    "localName": "Mtv2abc"
+  },
+  "name": "Mtv2abc"
+}
