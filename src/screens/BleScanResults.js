@@ -3,11 +3,12 @@ import BleManager from 'react-native-ble-manager';
 import { FlatList, View, NativeModules, NativeEventEmitter, AppState } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import { Button } from '../common';
+import Results from '../components/Results';
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
-class BleScanResults extends Component {
+class BleScanResults extends Component<{}> {
   constructor(props) {
     super(props);
 
@@ -18,7 +19,7 @@ class BleScanResults extends Component {
     };
 
     this.handleDiscoverPeripheral = this.handleDiscoverPeripheral.bind(this);
-    // this.handleStopScan = this.handleStopScan.bind(this);
+    this.handleStopScan = this.handleStopScan.bind(this);
     // this.handleUpdateValueForCharacteristic = this.handleUpdateValueForCharacteristic.bind(this);
     // this.handleDisconnectedPeripheral = this.handleDisconnectedPeripheral.bind(this);
     this.handleAppStateChange = this.handleAppStateChange.bind(this);
@@ -48,9 +49,7 @@ class BleScanResults extends Component {
       'BleManagerDiscoverPeripheral',
       this.handleDiscoverPeripheral
     );
-    // this.handlerStop = bleManagerEmitter
-    //     .addListener('BleManagerStopScan',
-    //                   this.handleStopScan);
+    this.handlerStop = bleManagerEmitter.addListener('BleManagerStopScan', this.handleStopScan);
     // this.handlerDisconnect = bleManagerEmitter
     //     .addListener('BleManagerDisconnectPeripheral',
     //                   this.handleDisconnectedPeripheral);
@@ -75,6 +74,17 @@ class BleScanResults extends Component {
     }
   }
 
+  handleStopScan() {
+    console.log('Scan stopped');
+    const list = Array.from(this.state.peripherals.values());
+
+    this.props.navigator.push({
+      title: 'Results',
+      component: Results,
+      passProps: { peripherals: list }
+    });
+  }
+
   handleAppStateChange(nextAppState) {
     if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
       console.log('App has come to the foreground!');
@@ -87,26 +97,19 @@ class BleScanResults extends Component {
 
   startScan = () => {
     this.setState({ peripherals: new Map() });
-    BleManager.scan([], 3).then(results => {
+    BleManager.scan([], 3).then(() => {
       console.log('Scanning...');
-      console.log(`Results: ${results}`);
     });
   };
 
   render() {
-    const list = Array.from(this.state.peripherals.values());
-
+    // const list = Array.from(this.state.peripherals.values());
+    // <View style={{ flex: 5 }}>
+    //   <Results peripherals={list} navigator={this.props.navigator} />
+    // </View>
     return (
       <View style={{ flex: 1, marginTop: 16 }}>
-        <View style={{ flex: 5 }}>
-          <FlatList
-            data={list}
-            renderItem={({ item }) => <ListItem title={item.id} subtitle={item.name} />}
-            keyExtractor={item => item.id}
-          />
-        </View>
-
-        <View style={{ marginBottom: 8, height: 44 }}>
+        <View style={{ marginTop: 48, height: 44 }}>
           <Button onPress={this.startScan}>Scan</Button>
         </View>
       </View>
