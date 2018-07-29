@@ -1,5 +1,6 @@
 import React from 'react';
 import BleManager from 'react-native-ble-manager';
+import { Buffer } from 'buffer';
 import { View, NativeModules, NativeEventEmitter } from 'react-native';
 import { CardSection, Button } from '../common';
 
@@ -77,8 +78,10 @@ class BleScanDetail extends React.Component<{}> {
         // Success code
         console.log(`Read: ${readData}`);
 
-        // const buffer = Buffer.Buffer.from(readData); //https://github.com/feross/buffer#convert-arraybuffer-to-buffer
-        // const sensorData = buffer.readUInt8(1, true);
+        const buffer = Buffer.from(readData); // https://github.com/feross/buffer#convert-arraybuffer-to-buffer
+        const sensorData = buffer.readUInt8(1, true);
+
+        console.log(`sensorData: ${sensorData}`);
       })
       .catch(error => {
         // Failure code
