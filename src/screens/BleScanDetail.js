@@ -12,7 +12,8 @@ class BleScanDetail extends React.Component<{}> {
     super(props);
 
     this.state = {
-      isConnected: false
+      isConnected: false,
+      characteristics: new Map()
     };
 
     this.handleConnectPeripheral = this.handleConnectPeripheral.bind(this);
@@ -21,11 +22,6 @@ class BleScanDetail extends React.Component<{}> {
 
   componentDidMount() {
     console.log('BLE_SCAN_DETAIL: componentDidMount');
-
-    // BleManager.start({ showAlert: false }).then(() => {
-    //   // Success code
-    //   console.log('Module initialized');
-    // });
 
     this.handleConnectPeripheral = bleManagerEmitter.addListener(
       'BleManagerConnectPeripheral',
@@ -58,6 +54,38 @@ class BleScanDetail extends React.Component<{}> {
       });
   };
 
+  startRead = () => {
+    const { characteristics } = this.state;
+    const prphId = this.props.thePeripheral.id.toString();
+
+    const characteristicObjectsList = Array.from(characteristics.values());
+    // console.log(JSON.stringify(characteristicObjectsList));
+
+    for (const charObj of characteristicObjectsList) {
+      // console.log(`charObj: ${JSON.stringify(charObj)}`);
+
+      if (charObj.properties.includes('Read')) {
+        console.log('Inside characteristic which includes Read');
+        this.readCharacteristics(prphId, charObj.service, charObj.characteristic);
+      }
+    }
+  };
+
+  readCharacteristics(peripheralId, serviceUUID, characteristicUUID) {
+    BleManager.read(peripheralId, serviceUUID, characteristicUUID)
+      .then(readData => {
+        // Success code
+        console.log(`Read: ${readData}`);
+
+        // const buffer = Buffer.Buffer.from(readData); //https://github.com/feross/buffer#convert-arraybuffer-to-buffer
+        // const sensorData = buffer.readUInt8(1, true);
+      })
+      .catch(error => {
+        // Failure code
+        console.log(error);
+      });
+  }
+
   startDisconnect = () => {
     const prphName = this.props.thePeripheral.name.toString();
     const prphId = this.props.thePeripheral.id.toString();
@@ -83,6 +111,8 @@ class BleScanDetail extends React.Component<{}> {
         BleManager.retrieveServices(prphId).then(peripheralInfo => {
           // Success code
           console.log('Peripheral info:', peripheralInfo);
+
+          this.setState({ characteristics: peripheralInfo.characteristics });
         });
       } else {
         console.log('Peripheral is NOT connected!');
@@ -109,6 +139,13 @@ class BleScanDetail extends React.Component<{}> {
     }
   }
 
+  renderReadButton() {
+    if (this.state.isConnected) {
+      const prphName = this.props.thePeripheral.name.toString();
+      return <Button onPress={this.startRead}>Read from {prphName}</Button>;
+    }
+  }
+
   render() {
     const myPeripheral = JSON.stringify(this.props.thePeripheral);
 
@@ -129,6 +166,7 @@ class BleScanDetail extends React.Component<{}> {
           <Button onPress={this.startConnect}>Pair with {peripheralName}</Button>
         </CardSection>
 
+        <CardSection>{this.renderReadButton()}</CardSection>
         <CardSection>{this.renderDisconnectButton()}</CardSection>
       </View>
     );
