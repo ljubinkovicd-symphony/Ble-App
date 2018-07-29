@@ -11,7 +11,12 @@ class BleScanDetail extends React.Component<{}> {
   constructor(props) {
     super(props);
 
+    this.state = {
+      isConnected: false
+    };
+
     this.handleConnectPeripheral = this.handleConnectPeripheral.bind(this);
+    this.handleDisconnectPeripheral = this.handleDisconnectPeripheral.bind(this);
   }
 
   componentDidMount() {
@@ -26,25 +31,82 @@ class BleScanDetail extends React.Component<{}> {
       'BleManagerConnectPeripheral',
       this.handleConnectPeripheral
     );
+
+    this.handleDisconnectPeripheral = bleManagerEmitter.addListener(
+      'BleManagerDisconnectPeripheral',
+      this.handleDisconnectPeripheral
+    );
   }
 
   componentWillUnmount() {
     this.handleConnectPeripheral.remove();
+    this.handleDisconnectPeripheral.remove();
   }
 
-  handleConnectPeripheral() {
-    const prphId = this.props.thePeripheral.id.toString();
+  startConnect = () => {
     const prphName = this.props.thePeripheral.name.toString();
-    console.log(`Trying to connect with ${this.props.thePeripheral.id}`);
+    const prphId = this.props.thePeripheral.id.toString();
     BleManager.connect(prphId)
       .then(() => {
         // Success code
         console.log(`Connected with ${prphName}`);
+        this.setState({ isConnected: true });
       })
       .catch(error => {
         // Failure code
         console.log(`BLE Error: ${error}`);
       });
+  };
+
+  startDisconnect = () => {
+    const prphName = this.props.thePeripheral.name.toString();
+    const prphId = this.props.thePeripheral.id.toString();
+    BleManager.disconnect(prphId)
+      .then(() => {
+        // Success code
+        console.log(`Disconnected from ${prphName}`);
+        this.setState({ isConnected: false });
+      })
+      .catch(error => {
+        // Failure code
+        console.log(`BLE Error: ${error}`);
+      });
+  };
+
+  handleConnectPeripheral() {
+    const prphId = this.props.thePeripheral.id.toString();
+    const prphName = this.props.thePeripheral.name.toString();
+    BleManager.isPeripheralConnected(prphId, []).then(isConnected => {
+      if (isConnected) {
+        console.log(`Peripheral ${prphName} is connected!`);
+
+        BleManager.retrieveServices(prphId).then(peripheralInfo => {
+          // Success code
+          console.log('Peripheral info:', peripheralInfo);
+        });
+      } else {
+        console.log('Peripheral is NOT connected!');
+      }
+    });
+  }
+
+  handleDisconnectPeripheral() {
+    const prphId = this.props.thePeripheral.id.toString();
+    const prphName = this.props.thePeripheral.name.toString();
+    BleManager.isPeripheralConnected(prphId, []).then(isConnected => {
+      if (isConnected) {
+        console.log(`Peripheral ${prphName} is connected!`);
+      } else {
+        console.log(`Peripheral ${prphName} is NOT connected!`);
+      }
+    });
+  }
+
+  renderDisconnectButton() {
+    if (this.state.isConnected) {
+      const prphName = this.props.thePeripheral.name.toString();
+      return <Button onPress={this.startDisconnect}>Disconnect from {prphName}</Button>;
+    }
   }
 
   render() {
@@ -64,8 +126,10 @@ class BleScanDetail extends React.Component<{}> {
         }}
       >
         <CardSection>
-          <Button onPress={this.handleConnectPeripheral}>Pair with {peripheralName}</Button>
+          <Button onPress={this.startConnect}>Pair with {peripheralName}</Button>
         </CardSection>
+
+        <CardSection>{this.renderDisconnectButton()}</CardSection>
       </View>
     );
   }
