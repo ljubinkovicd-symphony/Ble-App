@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { NavigatorIOS, View, TouchableHighlight, FlatList, Text } from 'react-native';
+import { FlatList } from 'react-native';
 import ResultItem from './ResultItem';
 import BleScanDetail from '../screens/BleScanDetail';
 
@@ -11,10 +11,6 @@ class Results extends Component<{}> {
   );
 
   _onPressItem = index => {
-    const objString = JSON.stringify(this.props.peripherals[index]);
-    console.log(`Peripheral selected: ${objString}`);
-    console.log(`Kliknuo na celiju na ${index}. mestu.`);
-
     this.props.navigator.push({
       title: 'PeripheralDetail',
       component: BleScanDetail,
@@ -23,8 +19,6 @@ class Results extends Component<{}> {
   };
 
   render() {
-    console.log(`IN RESULTS with peripherals: ${this.props.peripherals}`);
-
     return (
       <FlatList
         data={this.props.peripherals}
