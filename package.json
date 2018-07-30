@@ -6,7 +6,8 @@
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
     "ios": "node node_modules/react-native/local-cli/cli.js run-ios",
-    "android": "node node_modules/react-native/local-cli/cli.js run-android"
+    "android": "node node_modules/react-native/local-cli/cli.js run-android",
+    "lint": "tslint -p \".\" -t stylish"
   },
   "dependencies": {
     "react": "16.4.1",
@@ -27,6 +28,8 @@
     "react-native-typescript-transformer": "^1.2.10",
     "react-test-renderer": "16.4.1",
     "ts-jest": "^23.0.1",
+    "tslint": "^5.11.0",
+    "tslint-react-recommended": "^1.0.15",
     "typescript": "^2.9.2"
   },
   "jest": {
@@ -46,5 +49,12 @@
       "<rootDir>/node_modules/"
     ],
     "cacheDirectory": ".jest/cache"
-  }
+  },
+  "files":[
+    "android/",
+    "ios/",
+    "index.js",
+    "index.d.ts",
+    "react-native-config.podspec"
+  ]
 }

@@ -1,13 +1,22 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
-const CardSection = props => {
-  const { containerStyle } = styles;
+interface Props {}
+interface State {}
 
-  return <View style={containerStyle}>{props.children}</View>;
-};
+class CardSection extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+  }
 
-const styles = {
+  render() {
+    const { containerStyle } = styles
+
+    return <View style={containerStyle}>{this.props.children}</View>;
+  }
+}
+
+const styles = StyleSheet.create ({
   containerStyle: {
     borderBottomWidth: 1,
     padding: 5,
@@ -17,6 +26,6 @@ const styles = {
     borderColor: '#dddddd',
     position: 'relative'
   }
-};
+});
 
 export { CardSection };

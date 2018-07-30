@@ -1,20 +1,37 @@
 import React, { Component } from 'react';
 import BleManager from 'react-native-ble-manager';
-import { FlatList, View, NativeModules, NativeEventEmitter, AppState } from 'react-native';
-import { ListItem } from 'react-native-elements';
+import { View, NativeModules, NativeEventEmitter, AppState, NavigatorIOS } from 'react-native';
 import { Button } from '../common';
 import Results from '../components/Results';
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
-class BleScanResults extends Component<{}> {
-  constructor(props) {
+const DISCOVER_BLE_EVENT: string = 'BleManagerDiscoverPeripheral';
+const STOP_SCAN_BLE_EVENT: string = 'BleManagerStopScan';
+
+export interface IPeripheral {
+  id: string,
+  name: string
+}
+
+interface Props {
+  navigator: NavigatorIOS
+}
+
+interface State {
+  isScanning: boolean,
+  peripherals: Array<IPeripheral>,
+  appState: string
+}
+
+class BleScanResults extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
-      scanning: false,
-      peripherals: new Map(),
+      isScanning: false,
+      peripherals: [],
       appState: ''
     };
 
@@ -29,27 +46,13 @@ class BleScanResults extends Component<{}> {
     AppState.addEventListener('change', this.handleAppStateChange);
     console.log('bluetooth scanner mounted');
 
-    // bleManagerEmitter.addListener('BleManagerDiscoverPeripheral', data => {
-    //   const peripheral = {
-    //     peripheralName: data.name,
-    //     peripheralId: data.id
-    //   };
-    //
-    //   this.setState({
-    //     peripherals: [...this.state.peripherals, peripheral]
-    //   });
-    // });
-
     BleManager.start({ showAlert: false }).then(() => {
       // Success code
       console.log('Module initialized');
     });
 
-    this.handlerDiscover = bleManagerEmitter.addListener(
-      'BleManagerDiscoverPeripheral',
-      this.handleDiscoverPeripheral
-    );
-    this.handlerStop = bleManagerEmitter.addListener('BleManagerStopScan', this.handleStopScan);
+    bleManagerEmitter.addListener(DISCOVER_BLE_EVENT, this.handleDiscoverPeripheral);
+    bleManagerEmitter.addListener(STOP_SCAN_BLE_EVENT, this.handleStopScan);
     // this.handlerDisconnect = bleManagerEmitter
     //     .addListener('BleManagerDisconnectPeripheral',
     //                   this.handleDisconnectedPeripheral);
@@ -59,17 +62,16 @@ class BleScanResults extends Component<{}> {
   }
 
   componentWillUnmount() {
-    this.handlerDiscover.remove();
-    this.handlerStop.remove();
-    this.handlerDisconnect.remove();
-    this.handlerUpdate.remove();
+    bleManagerEmitter.removeListener(DISCOVER_BLE_EVENT, this.handleDiscoverPeripheral);
+    bleManagerEmitter.removeListener(STOP_SCAN_BLE_EVENT, this.handleStopScan);
   }
 
-  handleDiscoverPeripheral(peripheral) {
+  handleDiscoverPeripheral(peripheral: IPeripheral) {
     const peripherals = this.state.peripherals;
-    if (!peripherals.has(peripheral.id)) {
+    const peripheralIds = peripherals.map(x => x.id);
+    if (!peripheralIds.includes(peripheral.id)) {
       console.log('Got ble peripheral', peripheral);
-      peripherals.set(peripheral.id, peripheral);
+      peripherals.push(peripheral);
       this.setState({ peripherals });
     }
   }
@@ -85,10 +87,10 @@ class BleScanResults extends Component<{}> {
     });
   }
 
-  handleAppStateChange(nextAppState) {
+  handleAppStateChange(nextAppState: string) {
     if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
       console.log('App has come to the foreground!');
-      BleManager.getConnectedPeripherals([]).then(peripheralsArray => {
+      BleManager.getConnectedPeripherals([]).then((peripheralsArray: [IPeripheral]) => {
         console.log(`Connected peripherals: ${peripheralsArray.length}`);
       });
     }
@@ -96,17 +98,13 @@ class BleScanResults extends Component<{}> {
   }
 
   startScan = () => {
-    this.setState({ peripherals: new Map() });
+    this.setState({ peripherals: [] });
     BleManager.scan([], 3).then(() => {
       console.log('Scanning...');
     });
   };
 
   render() {
-    // const list = Array.from(this.state.peripherals.values());
-    // <View style={{ flex: 5 }}>
-    //   <Results peripherals={list} navigator={this.props.navigator} />
-    // </View>
     return (
       <View style={{ flex: 1, marginTop: 16 }}>
         <View style={{ marginTop: 48, height: 44 }}>

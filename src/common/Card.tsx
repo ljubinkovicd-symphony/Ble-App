@@ -1,13 +1,22 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
-const Card = props => {
-  const { containerStyle } = styles;
+export interface Props { }
+export interface State { }
 
-  return <View style={containerStyle}>{props.children}</View>;
-};
+class Card extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+  }
 
-const styles = {
+  render() {
+    const { containerStyle } = styles;
+
+    return <View style={containerStyle}>{this.props.children}</View>;
+  }
+}
+
+const styles = StyleSheet.create ({
   containerStyle: {
     borderWidth: 1,
     borderRadius: 2,
@@ -22,6 +31,6 @@ const styles = {
     marginRight: 5,
     marginTop: 10
   }
-};
+});
 
 export { Card };

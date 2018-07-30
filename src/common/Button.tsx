@@ -1,17 +1,28 @@
 import React from 'react';
-import { TouchableOpacity, Text } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-const Button = ({ children, onPress }) => {
-  const { buttonStyle, textStyle } = styles;
+interface Props {
+  onPress?: () => void
+}
+interface State {}
 
-  return (
-    <TouchableOpacity onPress={onPress} style={buttonStyle}>
-      <Text style={textStyle}>{children}</Text>
-    </TouchableOpacity>
-  );
-};
+class Button extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+  }
 
-const styles = {
+  render() {
+    const { buttonStyle, textStyle } = styles;
+
+    return (
+      <TouchableOpacity onPress={this.props.onPress} style={buttonStyle}>
+        <Text style={textStyle}>{this.props.children}</Text>
+      </TouchableOpacity>
+    );
+  }
+}
+
+const styles = StyleSheet.create ({
   buttonStyle: {
     flex: 1, // expand to fill as much content as it can.
     alignSelf: 'stretch',
@@ -30,6 +41,6 @@ const styles = {
     paddingTop: 10,
     paddingBottom: 10
   }
-};
+});
 
 export { Button };
