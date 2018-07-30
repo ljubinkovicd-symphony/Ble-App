@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest"
+    "test": "jest",
+    "ios": "node node_modules/react-native/local-cli/cli.js run-ios",
+    "android": "node node_modules/react-native/local-cli/cli.js run-android"
   },
   "dependencies": {
-    "Buffer": "^0.0.0",
-    "buffer": "^5.2.0",
     "react": "16.4.1",
     "react-native": "0.56.0",
     "react-native-ble-manager": "^6.5.0",
@@ -17,13 +17,34 @@
     "react-native-vector-icons": "^4.6.0"
   },
   "devDependencies": {
+    "@types/jest": "^23.3.1",
+    "@types/react": "^16.4.7",
+    "@types/react-native": "^0.56.4",
+    "@types/react-test-renderer": "^16.0.1",
     "babel-jest": "23.4.0",
     "babel-preset-react-native": "^5",
-    "eslint-config-rallycoding": "^3.2.0",
     "jest": "23.4.1",
-    "react-test-renderer": "16.4.1"
+    "react-native-typescript-transformer": "^1.2.10",
+    "react-test-renderer": "16.4.1",
+    "ts-jest": "^23.0.1",
+    "typescript": "^2.9.2"
   },
   "jest": {
-    "preset": "react-native"
+    "preset": "react-native",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(js)$": "<rootDir>/node_modules/babel-jest",
+      "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "testPathIgnorePatterns": [
+      "\\.snap$",
+      "<rootDir>/node_modules/"
+    ],
+    "cacheDirectory": ".jest/cache"
   }
 }
