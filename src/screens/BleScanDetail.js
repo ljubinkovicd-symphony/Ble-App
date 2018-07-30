@@ -1,6 +1,6 @@
 import React from 'react';
 import BleManager from 'react-native-ble-manager';
-import { Buffer } from 'buffer';
+// import { Buffer } from 'buffer';
 import { Alert, View, NativeModules, NativeEventEmitter } from 'react-native';
 import { CardSection, Button } from '../common';
 
@@ -78,16 +78,16 @@ class BleScanDetail extends React.Component<{}> {
         // Success code
         console.log(`Reading characteristicUUID ${characteristicUUID}: ${readData}`);
 
-        const buffer = Buffer.from(readData); // https://github.com/feross/buffer#convert-arraybuffer-to-buffer
-        const sensorData = buffer.readUInt8(1, true);
+        // const buffer = Buffer.from(readData); // https://github.com/feross/buffer#convert-arraybuffer-to-buffer
+        // const sensorData = buffer.readUInt8(1, true);
 
-        const myMap = new Map();
-        myMap.set(characteristicUUID, sensorData);
+        // const myMap = new Map();
+        // myMap.set(characteristicUUID, sensorData);
 
         this.setState({ readDataMap: readData });
         console.log(`My map: ${this.state.readDataMap}`);
 
-        console.log(`sensorData: ${sensorData}`);
+        // console.log(`sensorData: ${sensorData}`);
 
         if (characteristicUUID === '2A19') {
           console.log('Reading battery level...');
