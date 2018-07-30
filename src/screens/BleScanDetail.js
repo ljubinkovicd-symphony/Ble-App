@@ -1,7 +1,7 @@
 import React from 'react';
 import BleManager from 'react-native-ble-manager';
 import { Buffer } from 'buffer';
-import { View, NativeModules, NativeEventEmitter } from 'react-native';
+import { Alert, View, NativeModules, NativeEventEmitter } from 'react-native';
 import { CardSection, Button } from '../common';
 
 const BleManagerModule = NativeModules.BleManager;
@@ -14,7 +14,8 @@ class BleScanDetail extends React.Component<{}> {
 
     this.state = {
       isConnected: false,
-      characteristics: new Map()
+      characteristics: new Map(),
+      readDataMap: new Map()
     };
 
     this.handleConnectPeripheral = this.handleConnectPeripheral.bind(this);
@@ -66,7 +67,6 @@ class BleScanDetail extends React.Component<{}> {
       // console.log(`charObj: ${JSON.stringify(charObj)}`);
 
       if (charObj.properties.includes('Read')) {
-        console.log('Inside characteristic which includes Read');
         this.readCharacteristics(prphId, charObj.service, charObj.characteristic);
       }
     }
@@ -76,17 +76,67 @@ class BleScanDetail extends React.Component<{}> {
     BleManager.read(peripheralId, serviceUUID, characteristicUUID)
       .then(readData => {
         // Success code
-        console.log(`Read: ${readData}`);
+        console.log(`Reading characteristicUUID ${characteristicUUID}: ${readData}`);
 
         const buffer = Buffer.from(readData); // https://github.com/feross/buffer#convert-arraybuffer-to-buffer
         const sensorData = buffer.readUInt8(1, true);
 
+        const myMap = new Map();
+        myMap.set(characteristicUUID, sensorData);
+
+        this.setState({ readDataMap: readData });
+        console.log(`My map: ${this.state.readDataMap}`);
+
         console.log(`sensorData: ${sensorData}`);
+
+        if (characteristicUUID === '2A19') {
+          console.log('Reading battery level...');
+          const prphName = this.props.thePeripheral.name.toString();
+          Alert.alert(
+            `${prphName}'s battery level:`,
+            `${readData}%`,
+            [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+            { cancelable: false }
+          );
+        }
+        // else if (characteristicUUID === '2A29') {
+        //   const binaryRepresentation = [];
+        //   const characterRepresentation = [];
+        //
+        //   for (let i = 0; i < readData.length; i++) {
+        //     binaryRepresentation[i] = readData[i].toString(2);
+        //     characterRepresentation[i] = this.binaryToString(binaryRepresentation[i]);
+        //   }
+        //
+        //   const reducer = (accumulator, currentValue) => accumulator + currentValue;
+        //   const manufacturerString = characterRepresentation.reduce(reducer, '');
+        //
+        //   // Manufacturer's string
+        //   console.log("Reading manufacturer's string...");
+        //   const prphName = this.props.thePeripheral.name.toString();
+        //   Alert.alert(
+        //     `${prphName}'s manufacturer name:`,
+        //     `${manufacturerString}`,
+        //     [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+        //     { cancelable: false }
+        //   );
+        // }
       })
       .catch(error => {
         // Failure code
         console.log(error);
       });
+  }
+
+  binaryToString(str) {
+    const newBinary = str.split(' ');
+    const binaryCode = [];
+
+    for (let i = 0; i < newBinary.length; i++) {
+      binaryCode.push(String.fromCharCode(parseInt(newBinary[i], 2)));
+    }
+
+    return binaryCode.join('');
   }
 
   startDisconnect = () => {

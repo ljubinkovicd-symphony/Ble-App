@@ -14,7 +14,9 @@ class ResultItem extends React.PureComponent {
     return (
       <TouchableHighlight onPress={this._onPress} underlayColor="#dddddd">
         <View style={{ padding: 10 }}>
-          <Text>`Peripheral Name: ${peripheralName}`</Text>
+          <Text style={{ fontSize: 22, fontWeight: 'bold' }}>
+            Peripheral Name: {peripheralName}
+          </Text>
           <Text>{peripheralId}</Text>
         </View>
       </TouchableHighlight>
