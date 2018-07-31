@@ -1,7 +1,18 @@
-import React from 'react';
-import { TouchableHighlight, View, Text } from 'react-native';
+import React from "react";
+import { TouchableHighlight, View, Text } from "react-native";
 
-class ResultItem extends React.PureComponent {
+interface Props {
+  item: any;
+  index: number;
+  onPressItem: (index: number) => void;
+}
+interface State {}
+
+class ResultItem extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+  }
+
   _onPress = () => {
     this.props.onPressItem(this.props.index);
   };
@@ -14,8 +25,8 @@ class ResultItem extends React.PureComponent {
     return (
       <TouchableHighlight onPress={this._onPress} underlayColor="#dddddd">
         <View style={{ padding: 10 }}>
-          <Text style={{ fontSize: 22, fontWeight: 'bold' }}>
-            Peripheral Name: {peripheralName}
+          <Text style={{ fontSize: 22, fontWeight: "bold" }}>
+            Device Name: {peripheralName}
           </Text>
           <Text>{peripheralId}</Text>
         </View>
