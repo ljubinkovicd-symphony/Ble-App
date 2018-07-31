@@ -1,55 +1,41 @@
-import React from 'react';
-import BleManager from 'react-native-ble-manager';
-import { Alert, View, NativeModules, NativeEventEmitter } from 'react-native';
-import { CardSection, Button } from '../common';
+import React from "react";
+import BleManager from "react-native-ble-manager";
+import { Alert, View, NativeModules, NativeEventEmitter } from "react-native";
+import { CardSection, Button } from "../common";
+import { IPeripheral, ICharacteristic } from "../models";
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
-const BATTERY_LEVEL_CHARACTERISTIC = '2A19';
-const CONNECT_BLE_EVENT = 'BleManagerConnectPeripheral';
-const DISCONNECT_BLE_EVENT = 'BleManagerDisconnectPeripheral';
-
-export interface IPeripheral {
-  id: string,
-  name: string
-}
-
-export interface ICharacteristic {
-  service: string,
-  characteristic: string,
-  isNotifying: boolean,
-  properties: [string]
-}
+const BATTERY_LEVEL_CHARACTERISTIC = "2A19";
+const CONNECT_BLE_EVENT = "BleManagerConnectPeripheral";
+const DISCONNECT_BLE_EVENT = "BleManagerDisconnectPeripheral";
 
 interface Props {
-  thePeripheral: IPeripheral
+  thePeripheral: IPeripheral;
 }
 
 interface State {
-  isConnected: boolean,
-  characteristics: ICharacteristic[],
-  readDataMap: {}
+  isConnected: boolean;
+  characteristics: ICharacteristic[];
 }
 
-// const BleScanDetail = ({ thePeripheral }) => {
 class BleScanDetail extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
       isConnected: false,
-      characteristics: [],
-      readDataMap: {}
+      characteristics: []
     };
 
     this.handleConnectPeripheral = this.handleConnectPeripheral.bind(this);
-    this.handleDisconnectPeripheral = this.handleDisconnectPeripheral.bind(this);
+    this.handleDisconnectPeripheral = this.handleDisconnectPeripheral.bind(
+      this
+    );
   }
 
   componentDidMount() {
-    console.log('BLE_SCAN_DETAIL: componentDidMount');
-
     bleManagerEmitter.addListener(
       CONNECT_BLE_EVENT,
       this.handleConnectPeripheral
@@ -62,17 +48,21 @@ class BleScanDetail extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    bleManagerEmitter.removeListener('BleManagerConnectPeripheral', this.handleConnectPeripheral);
-    bleManagerEmitter.removeListener('BleManagerDisconnectPeripheral', this.handleDisconnectPeripheral);
+    bleManagerEmitter.removeListener(
+      CONNECT_BLE_EVENT,
+      this.handleConnectPeripheral
+    );
+    bleManagerEmitter.removeListener(
+      DISCONNECT_BLE_EVENT,
+      this.handleDisconnectPeripheral
+    );
   }
 
   startConnect = () => {
-    const prphName = this.props.thePeripheral.name;
     const prphId = this.props.thePeripheral.id;
     BleManager.connect(prphId)
       .then(() => {
         // Success code
-        console.log(`Connected with ${prphName}`);
         this.setState({ isConnected: true });
       })
       .catch((error: Error) => {
@@ -86,33 +76,32 @@ class BleScanDetail extends React.Component<Props, State> {
     const prphId = this.props.thePeripheral.id;
 
     const characteristicObjectsList = Array.from(characteristics.values());
-    // console.log(JSON.stringify(characteristicObjectsList));
 
     for (const charObj of characteristicObjectsList) {
-      // console.log(`charObj: ${JSON.stringify(charObj)}`);
-
-      if (charObj.properties.includes('Read')) {
-        this.readCharacteristics(prphId, charObj.service, charObj.characteristic);
+      if (charObj.properties.includes("Read")) {
+        this.readCharacteristics(
+          prphId,
+          charObj.service,
+          charObj.characteristic
+        );
       }
     }
   };
 
-  readCharacteristics(peripheralId: string, serviceUUID: string, characteristicUUID: string) {
+  readCharacteristics(
+    peripheralId: string,
+    serviceUUID: string,
+    characteristicUUID: string
+  ) {
     BleManager.read(peripheralId, serviceUUID, characteristicUUID)
       .then((readData: any) => {
         // Success code
-        console.log(`Reading characteristicUUID ${characteristicUUID}: ${readData}`);
-
-        this.setState({ readDataMap: readData });
-        console.log(`My map: ${this.state.readDataMap}`);
-
         if (characteristicUUID === BATTERY_LEVEL_CHARACTERISTIC) {
-          console.log('Reading battery level...');
           const prphName = this.props.thePeripheral.name.toString();
           Alert.alert(
             `${prphName}'s battery level:`,
             `${readData}%`,
-            [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+            [{ text: "OK", onPress: () => console.log("OK Pressed") }],
             { cancelable: false }
           );
         }
@@ -124,12 +113,10 @@ class BleScanDetail extends React.Component<Props, State> {
   }
 
   startDisconnect = () => {
-    const prphName = this.props.thePeripheral.name.toString();
     const prphId = this.props.thePeripheral.id.toString();
     BleManager.disconnect(prphId)
       .then(() => {
         // Success code
-        console.log(`Disconnected from ${prphName}`);
         this.setState({ isConnected: false });
       })
       .catch((error: string) => {
@@ -140,39 +127,42 @@ class BleScanDetail extends React.Component<Props, State> {
 
   handleConnectPeripheral() {
     const prphId = this.props.thePeripheral.id.toString();
-    const prphName = this.props.thePeripheral.name.toString();
-    BleManager.isPeripheralConnected(prphId, []).then(((isConnected: boolean) => {
-      if (isConnected) {
-        console.log(`Peripheral ${prphName} is connected!`);
-
-        BleManager.retrieveServices(prphId).then((peripheralInfo: any) => {
-          // Success code
-          console.log('Peripheral info:', peripheralInfo);
-
-          this.setState({ characteristics: peripheralInfo.characteristics });
-        });
-      } else {
-        console.log('Peripheral is NOT connected!');
+    BleManager.isPeripheralConnected(prphId, []).then(
+      (isConnected: boolean) => {
+        if (isConnected) {
+          BleManager.retrieveServices(prphId).then((peripheralInfo: any) => {
+            // Success code
+            this.setState({ characteristics: peripheralInfo.characteristics });
+          });
+        } else {
+          console.log("Peripheral is NOT connected!");
+        }
       }
-    }));
+    );
   }
 
   handleDisconnectPeripheral() {
     const prphId = this.props.thePeripheral.id.toString();
     const prphName = this.props.thePeripheral.name.toString();
-    BleManager.isPeripheralConnected(prphId, []).then((isConnected: boolean) => {
-      if (isConnected) {
-        console.log(`Peripheral ${prphName} is connected!`);
-      } else {
-        console.log(`Peripheral ${prphName} is NOT connected!`);
+    BleManager.isPeripheralConnected(prphId, []).then(
+      (isConnected: boolean) => {
+        if (isConnected) {
+          console.log(`Peripheral ${prphName} is connected!`);
+        } else {
+          console.log(`Peripheral ${prphName} is NOT connected!`);
+        }
       }
-    });
+    );
   }
 
   renderDisconnectButton() {
     if (this.state.isConnected) {
       const prphName = this.props.thePeripheral.name.toString();
-      return <Button onPress={this.startDisconnect}>Disconnect from {prphName}</Button>;
+      return (
+        <Button onPress={this.startDisconnect}>
+          Disconnect from {prphName}
+        </Button>
+      );
     }
   }
 
@@ -184,23 +174,21 @@ class BleScanDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const myPeripheral = JSON.stringify(this.props.thePeripheral);
-
-    console.log(`Peripheral object: \n${myPeripheral}`);
-
     const peripheralName = this.props.thePeripheral.name;
 
     return (
       <View
         style={{
           flex: 1,
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center'
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center"
         }}
       >
         <CardSection>
-          <Button onPress={this.startConnect}>Pair with {peripheralName}</Button>
+          <Button onPress={this.startConnect}>
+            Pair with {peripheralName}
+          </Button>
         </CardSection>
 
         <CardSection>{this.renderReadButton()}</CardSection>

@@ -10,6 +10,7 @@
     "lint": "tslint -p \".\" -t stylish"
   },
   "dependencies": {
+    "@types/react-native-navigation": "^1.1.12",
     "react": "16.4.1",
     "react-native": "0.56.0",
     "react-native-ble-manager": "^6.5.0",
@@ -50,7 +51,7 @@
     ],
     "cacheDirectory": ".jest/cache"
   },
-  "files":[
+  "files": [
     "android/",
     "ios/",
     "index.js",
