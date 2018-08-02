@@ -1,8 +1,9 @@
 import React from "react";
 import { TouchableHighlight, View, Text } from "react-native";
+import { IPeripheral } from "../models";
 
 interface Props {
-  item: any;
+  item: IPeripheral;
   index: number;
   onPressItem: (index: number) => void;
 }
@@ -19,16 +20,14 @@ class ResultItem extends React.PureComponent<Props, State> {
 
   render() {
     const peripheral = this.props.item;
-    const peripheralId = peripheral.id;
-    const peripheralName = peripheral.name;
 
     return (
       <TouchableHighlight onPress={this._onPress} underlayColor="#dddddd">
         <View style={{ padding: 10 }}>
           <Text style={{ fontSize: 22, fontWeight: "bold" }}>
-            Device Name: {peripheralName}
+            Device Name: {peripheral.name}
           </Text>
-          <Text>{peripheralId}</Text>
+          <Text>{peripheral.id}</Text>
         </View>
       </TouchableHighlight>
     );

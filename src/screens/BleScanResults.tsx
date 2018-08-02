@@ -1,117 +1,41 @@
 import React, { Component } from "react";
-import BleManager from "react-native-ble-manager";
-import {
-  View,
-  NativeModules,
-  NativeEventEmitter,
-  AppState,
-  NavigatorIOS
-} from "react-native";
-import { Button } from "../common";
+import { NavigatorIOS, FlatList } from "react-native";
+import ResultItem from "../components/BleScanItem";
+import BleScanDetail from "../screens/BleScanDetail";
 import { IPeripheral } from "../models";
-import Results from "../components/Results";
-
-const BleManagerModule = NativeModules.BleManager;
-const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
-
-const DISCOVER_BLE_EVENT: string = "BleManagerDiscoverPeripheral";
-const STOP_SCAN_BLE_EVENT: string = "BleManagerStopScan";
 
 interface Props {
+  peripherals: Array<IPeripheral>;
   navigator: NavigatorIOS;
 }
-
-interface State {
-  isScanning: boolean;
-  peripherals: Array<IPeripheral>;
-  appState: string;
-}
+interface State {}
 
 class BleScanResults extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  _keyExtractor = (item: IPeripheral, index: number) => index.toString();
 
-    this.state = {
-      isScanning: false,
-      peripherals: [],
-      appState: ""
-    };
+  _renderItem = (info: { item: IPeripheral; index: number }): JSX.Element => (
+    <ResultItem
+      item={info.item}
+      index={info.index}
+      onPressItem={this._onPressItem}
+    />
+  );
 
-    this.handleDiscoverPeripheral = this.handleDiscoverPeripheral.bind(this);
-    this.handleStopScan = this.handleStopScan.bind(this);
-    this.handleAppStateChange = this.handleAppStateChange.bind(this);
-  }
-
-  componentDidMount() {
-    AppState.addEventListener("change", this.handleAppStateChange);
-
-    BleManager.start({ showAlert: false }).then(() => {
-      // Success code
-      console.log("Module initialized");
-    });
-
-    bleManagerEmitter.addListener(
-      DISCOVER_BLE_EVENT,
-      this.handleDiscoverPeripheral
-    );
-    bleManagerEmitter.addListener(STOP_SCAN_BLE_EVENT, this.handleStopScan);
-  }
-
-  componentWillUnmount() {
-    bleManagerEmitter.removeListener(
-      DISCOVER_BLE_EVENT,
-      this.handleDiscoverPeripheral
-    );
-    bleManagerEmitter.removeListener(STOP_SCAN_BLE_EVENT, this.handleStopScan);
-  }
-
-  handleDiscoverPeripheral(peripheral: IPeripheral) {
-    const peripherals = this.state.peripherals;
-    const peripheralIds = peripherals.map(x => x.id);
-    if (!peripheralIds.includes(peripheral.id)) {
-      peripherals.push(peripheral);
-      this.setState({ peripherals });
-    }
-  }
-
-  handleStopScan() {
-    const list = Array.from(this.state.peripherals.values());
-
+  _onPressItem = (index: number) => {
     this.props.navigator.push({
-      title: "Results",
-      component: Results,
-      passProps: { peripherals: list }
-    });
-  }
-
-  handleAppStateChange(nextAppState: string) {
-    if (
-      this.state.appState.match(/inactive|background/) &&
-      nextAppState === "active"
-    ) {
-      BleManager.getConnectedPeripherals([]).then(
-        (peripheralsArray: [IPeripheral]) => {
-          console.log(`Connected peripherals: ${peripheralsArray.length}`);
-        }
-      );
-    }
-    this.setState({ appState: nextAppState });
-  }
-
-  startScan = () => {
-    this.setState({ peripherals: [] });
-    BleManager.scan([], 3).then(() => {
-      console.log("Scanning...");
+      title: "PeripheralDetail",
+      component: BleScanDetail,
+      passProps: { thePeripheral: this.props.peripherals[index] }
     });
   };
 
   render() {
     return (
-      <View style={{ flex: 1, marginTop: 16 }}>
-        <View style={{ marginTop: 48, height: 44 }}>
-          <Button onPress={this.startScan}>Scan</Button>
-        </View>
-      </View>
+      <FlatList
+        data={this.props.peripherals}
+        keyExtractor={this._keyExtractor}
+        renderItem={this._renderItem}
+      />
     );
   }
 }

@@ -1,12 +1,12 @@
 import React from "react";
 import { NavigatorIOS } from "react-native";
-import BleScanResults from "./screens/BleScanResults";
+import BleScanScreen from "./screens/BleScanScreen";
 
 const App = () => (
   <NavigatorIOS
     style={{ flex: 1 }}
     initialRoute={{
-      component: BleScanResults,
+      component: BleScanScreen,
       title: "Home"
     }}
   />

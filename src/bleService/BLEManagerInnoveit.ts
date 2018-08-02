@@ -1,10 +1,20 @@
-import { IBluetooth } from "./BLEWrapper";
+// import React, { Component } from "react";
+import { IBleService } from "./IBleService";
 import BleManager from "react-native-ble-manager";
+import { NativeModules, NativeEventEmitter } from "react-native";
 
-export default class BLEManagerInnoveit implements IBluetooth {
+const BleManagerModule = NativeModules.BleManager;
+const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
+
+const DISCOVER_BLE_EVENT: string = "BleManagerDiscoverPeripheral";
+const STOP_SCAN_BLE_EVENT: string = "BleManagerStopScan";
+
+export default class BLEManagerInnoveit implements IBleService {
   peripheralID: string = "";
   serviceUUID: string = "";
   characteristicUUID: string = "";
+
+  private _isStarted: boolean = false;
 
   constructor(
     peripheralID: string,
@@ -15,11 +25,21 @@ export default class BLEManagerInnoveit implements IBluetooth {
     this.serviceUUID = serviceUUID;
     this.characteristicUUID = characteristicUUID;
 
-    // TODO: ONLY CALL ONCE!!
-    BleManager.start({ showAlert: false }).then(() => {
-      // Success code
-      console.log("Module initialized");
-    });
+    this._start();
+  }
+
+  // Startable
+  /** Init the module. Returns a Promise object. Don't call this multiple times. */
+  private _start(): void {
+    if (!this._isStarted) {
+      BleManager.start({ showAlert: true }).then(() => {
+        // Success code
+        console.log("Module initialized");
+        this._isStarted = true;
+      });
+    } else {
+      console.log("ALREADY STARTED!");
+    }
   }
 
   // Connectable
