@@ -7,9 +7,18 @@ export class BleWrapper {
     this.bleService = bleService;
   }
 
+  connect(): void {
+    this.bleService.connect();
+  }
+
+  disconnect(): void {
+    this.bleService.disconnect();
+  }
+
   startScan(): void {
     this.bleService.startScan();
   }
+
   stopScan(): void {
     this.bleService.stopScan();
   }
@@ -20,5 +29,9 @@ export class BleWrapper {
 
   write<T>(data: T): void {
     this.bleService.write(data);
+  }
+
+  notify(): void {
+    this.bleService.notify();
   }
 }

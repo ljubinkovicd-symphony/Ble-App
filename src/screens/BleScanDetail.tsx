@@ -3,6 +3,7 @@ import BleManager from "react-native-ble-manager";
 import { Alert, View, NativeModules, NativeEventEmitter } from "react-native";
 import { CardSection, Button } from "../common";
 import { IPeripheral, ICharacteristic } from "../models";
+import BLEManagerInnoveit from "../bleService/BleManagerInnoveit";
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);

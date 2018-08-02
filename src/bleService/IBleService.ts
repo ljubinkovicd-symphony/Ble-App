@@ -1,3 +1,5 @@
+import { IPeripheral } from "../models";
+
 // Devices can be connectable, databases...
 export interface IConnectable {
   connect(): void;
@@ -17,11 +19,16 @@ export interface IScanable {
   stopScan(): void;
 }
 
+export interface INotifiable {
+  notify(): void;
+}
+
 export interface IBleService
   extends IConnectable,
     IReadable,
     IWriteable,
-    IScanable {
+    IScanable,
+    INotifiable {
   peripheralID: string;
   serviceUUID: string;
   characteristicUUID: string;

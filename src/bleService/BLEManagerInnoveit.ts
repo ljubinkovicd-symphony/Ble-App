@@ -2,30 +2,85 @@
 import { IBleService } from "./IBleService";
 import BleManager from "react-native-ble-manager";
 import { NativeModules, NativeEventEmitter } from "react-native";
+import { IPeripheral } from "../models";
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
+// Events
+/**
+ * A peripheral was connected.
+ * @param peripheral string - the id of the peripheral
+ */
+const CONNECT_BLE_EVENT: string = "BleManagerConnectPeripheral";
+/**
+ * A peripheral was disconnected.
+ * @param peripheral string - the id of the peripheral
+ */
+const DISCONNECT_BLE_EVENT: string = "BleManagerDisconnectPeripheral";
+/**
+ * The BLE change state.
+ * @param state string - the new BLE state ("on"/"off")
+ */
+const STATE_CHANGE_BLE_EVENT: string = "BleManagerDidUpdateState";
+/**
+ * The scanning find a new peripheral.
+ * @param id string - the id of the peripheral
+ * @param name string - the name of the peripheral
+ * @param rssi number - the RSSI (Received Signal Strength Indicator) value
+ * @param advertising JSON - the advertising payload, according to platforms:
+ *
+ *     [Android] contains the raw bytes and data (Base64 encoded string)
+ *
+ *     [iOS] contains a JSON object with different keys according to Apple's doc, here are some examples:
+ *
+ *     kCBAdvDataChannel - Number
+ *
+ *     kCBAdvDataIsConnectable - Number
+ *
+ *     kCBAdvDataLocalName - String
+ *
+ *     kCBAdvDataManufacturerData - JSON - contains the raw bytes and data (Base64 encoded string)
+ */
 const DISCOVER_BLE_EVENT: string = "BleManagerDiscoverPeripheral";
+/**
+ * The scanning for peripherals is ended.
+ */
 const STOP_SCAN_BLE_EVENT: string = "BleManagerStopScan";
+/**
+ * A characteristic notify a new value.
+ * @param value Array - the read value
+ * @param peripheral string - the id of the peripheral
+ * @param characteristic string - the UUID of the characteristic
+ * @param service string - the UUID of the service
+ *
+ * Event will only be emitted AFTER a successful startNotification */
+const CHARACTERISTIC_VALUE_UPDATE_BLE_EVENT: string =
+  "BleManagerDidUpdateValueForCharacteristic";
 
+/** Singleton class. Call with:
+ *
+ * let mySingletonClass = BLEManagerInnoveit.getInstance() */
 export default class BLEManagerInnoveit implements IBleService {
+  peripherals: Array<IPeripheral> = [];
   peripheralID: string = "";
   serviceUUID: string = "";
   characteristicUUID: string = "";
 
   private _isStarted: boolean = false;
 
-  constructor(
-    peripheralID: string,
-    serviceUUID: string,
-    characteristicUUID: string
-  ) {
-    this.peripheralID = peripheralID;
-    this.serviceUUID = serviceUUID;
-    this.characteristicUUID = characteristicUUID;
-
+  // Singleton
+  private static _instance: BLEManagerInnoveit;
+  private constructor() {
     this._start();
+    this._addListeners();
+  }
+
+  static getInstance() {
+    if (!BLEManagerInnoveit._instance) {
+      BLEManagerInnoveit._instance = new BLEManagerInnoveit();
+    }
+    return BLEManagerInnoveit._instance;
   }
 
   // Startable
@@ -34,12 +89,26 @@ export default class BLEManagerInnoveit implements IBleService {
     if (!this._isStarted) {
       BleManager.start({ showAlert: true }).then(() => {
         // Success code
-        console.log("Module initialized");
+        console.log("MY BLE_INNOVEIT MODULE HAS BEEN INITIALIZED!!!");
         this._isStarted = true;
       });
     } else {
       console.log("ALREADY STARTED!");
     }
+  }
+
+  // Scanable
+  startScan(): void {
+    BleManager.scan([], 3).then(() => {
+      console.log("Scanning for devices...");
+    });
+  }
+
+  stopScan(): void {
+    BleManager.stopScan().then(() => {
+      // Success code
+      console.log("Scan stopped");
+    });
   }
 
   // Connectable
@@ -67,20 +136,7 @@ export default class BLEManagerInnoveit implements IBleService {
       });
   }
 
-  // Scanable
-  startScan(): void {
-    BleManager.scan([], 3).then(() => {
-      console.log("Scanning for devices...");
-    });
-  }
-
-  stopScan(): void {
-    BleManager.stopScan().then(() => {
-      // Success code
-      console.log("Scan stopped");
-    });
-  }
-
+  /** Before write, read or start notification you need to call the retrieveServices method */
   // Readable
   read(): void {
     BleManager.read(
@@ -98,6 +154,7 @@ export default class BLEManagerInnoveit implements IBleService {
       });
   }
 
+  /** Before write, read or start notification you need to call the retrieveServices method */
   // Writeable
   write<T>(data: T): void {
     console.log(data);
@@ -117,4 +174,54 @@ export default class BLEManagerInnoveit implements IBleService {
         console.log(error);
       });
   }
+
+  /** Before write, read or start notification you need to call the retrieveServices method */
+  // Notifiable
+  notify(): void {}
+
+  // Helper methods
+  private _addListeners(): void {
+    bleManagerEmitter.addListener(STOP_SCAN_BLE_EVENT, this._handleStopScan);
+    bleManagerEmitter.addListener(
+      DISCOVER_BLE_EVENT,
+      this._handleDiscoverPeripheral
+    );
+    bleManagerEmitter.addListener(
+      CONNECT_BLE_EVENT,
+      this._handleConnectPeripheral
+    );
+    bleManagerEmitter.addListener(
+      DISCONNECT_BLE_EVENT,
+      this._handleDisconnectPeripheral
+    );
+    bleManagerEmitter.addListener(
+      STATE_CHANGE_BLE_EVENT,
+      this._handleUpdateState
+    );
+    bleManagerEmitter.addListener(
+      CHARACTERISTIC_VALUE_UPDATE_BLE_EVENT,
+      this._handleUpdateValueForCharacteristic
+    );
+  }
+
+  static removeListeners(): void {
+    bleManagerEmitter.removeAllListeners();
+  }
+  // Event handlers
+  /*
+    BleManagerStopScan,
+    BleManagerDidUpdateState,
+    BleManagerDiscoverPeripheral,
+    BleManagerDidUpdateValueForCharacteristic,
+    BleManagerConnectPeripheral,
+    BleManagerDisconnectPeripheral
+  */
+  private _handleStopScan(): void {}
+  private _handleDiscoverPeripheral(peripheral: IPeripheral): void {
+    console.log(`FROM DISCOVER: ${JSON.stringify(peripheral)}`);
+  }
+  private _handleConnectPeripheral(): void {}
+  private _handleDisconnectPeripheral(): void {}
+  private _handleUpdateState(): void {}
+  private _handleUpdateValueForCharacteristic(): void {}
 }
