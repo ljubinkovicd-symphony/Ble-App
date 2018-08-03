@@ -32,4 +32,10 @@ export interface IBleService
   peripheralID: string;
   serviceUUID: string;
   characteristicUUID: string;
+
+  removeListeners(): void;
+}
+
+export interface ListenerCallback {
+  listenerCallback(peripheral: IPeripheral): void;
 }

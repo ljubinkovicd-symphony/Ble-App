@@ -1,37 +1,37 @@
-import { IBleService } from "./IBleService";
+// import { IBleService } from "./IBleService";
 
-export class BleWrapper {
-  bleService: IBleService;
+// export class BleWrapper {
+//   bleService: IBleService;
 
-  constructor(bleService: IBleService) {
-    this.bleService = bleService;
-  }
+//   constructor(bleService: IBleService) {
+//     this.bleService = bleService;
+//   }
 
-  connect(): void {
-    this.bleService.connect();
-  }
+//   connect(): void {
+//     this.bleService.connect();
+//   }
 
-  disconnect(): void {
-    this.bleService.disconnect();
-  }
+//   disconnect(): void {
+//     this.bleService.disconnect();
+//   }
 
-  startScan(): void {
-    this.bleService.startScan();
-  }
+//   startScan(): void {
+//     this.bleService.startScan();
+//   }
 
-  stopScan(): void {
-    this.bleService.stopScan();
-  }
+//   stopScan(): void {
+//     this.bleService.stopScan();
+//   }
 
-  read(): void {
-    this.bleService.read();
-  }
+//   read(): void {
+//     this.bleService.read();
+//   }
 
-  write<T>(data: T): void {
-    this.bleService.write(data);
-  }
+//   write<T>(data: T): void {
+//     this.bleService.write(data);
+//   }
 
-  notify(): void {
-    this.bleService.notify();
-  }
-}
+//   notify(): void {
+//     this.bleService.notify();
+//   }
+// }

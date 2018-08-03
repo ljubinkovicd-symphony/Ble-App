@@ -2,8 +2,10 @@ import React, { Component } from "react";
 import { View, NavigatorIOS } from "react-native";
 import { Button } from "../common";
 import { IPeripheral } from "../models";
-import { BleWrapper } from "../bleService/BleWrapper";
-import BLEManagerInnoveit from "../bleService/BleManagerInnoveit";
+import { IBleService, ListenerCallback } from "../bleService/IBleService";
+import IBLEServiceFactory, {
+  BleServiceLibrary
+} from "../bleService/IBleServiceFactory";
 
 interface Props {
   navigator: NavigatorIOS;
@@ -15,11 +17,17 @@ interface State {
   appState: string;
 }
 
-class BleScanScreen extends Component<Props, State> {
-  myBleWrapper?: BleWrapper;
+class BleScanScreen extends Component<Props, State>
+  implements ListenerCallback {
+  myBleService: IBleService;
 
   constructor(props: Props) {
     super(props);
+
+    this.myBleService = IBLEServiceFactory.getInstance(
+      BleServiceLibrary.Innoveit,
+      this
+    );
 
     this.state = {
       isScanning: false,
@@ -29,18 +37,18 @@ class BleScanScreen extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.myBleWrapper = new BleWrapper(BLEManagerInnoveit.getInstance());
+    // this.myBleWrapper = new BleWrapper(BLEManagerInnoveit.getInstance());
   }
 
   // TODO: Change this...
   componentWillUnmount() {
-    BLEManagerInnoveit.removeListeners();
+    this.myBleService.removeListeners();
   }
 
   startScan = () => {
-    if (this.myBleWrapper) {
+    if (this.myBleService) {
       this.setState({ peripherals: [] });
-      this.myBleWrapper.startScan();
+      this.myBleService.startScan();
     }
   };
 
@@ -51,6 +59,12 @@ class BleScanScreen extends Component<Props, State> {
           <Button onPress={this.startScan}>Scan</Button>
         </View>
       </View>
+    );
+  }
+
+  listenerCallback(peripheral: IPeripheral): void {
+    console.log(
+      "My peripheral from inside the screen: " + JSON.stringify(peripheral)
     );
   }
 }

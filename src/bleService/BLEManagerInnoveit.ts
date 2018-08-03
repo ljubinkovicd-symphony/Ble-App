@@ -1,5 +1,5 @@
 // import React, { Component } from "react";
-import { IBleService } from "./IBleService";
+import { IBleService, ListenerCallback } from "./IBleService";
 import BleManager from "react-native-ble-manager";
 import { NativeModules, NativeEventEmitter } from "react-native";
 import { IPeripheral } from "../models";
@@ -58,9 +58,6 @@ const STOP_SCAN_BLE_EVENT: string = "BleManagerStopScan";
 const CHARACTERISTIC_VALUE_UPDATE_BLE_EVENT: string =
   "BleManagerDidUpdateValueForCharacteristic";
 
-/** Singleton class. Call with:
- *
- * let mySingletonClass = BLEManagerInnoveit.getInstance() */
 export default class BLEManagerInnoveit implements IBleService {
   peripherals: Array<IPeripheral> = [];
   peripheralID: string = "";
@@ -69,18 +66,14 @@ export default class BLEManagerInnoveit implements IBleService {
 
   private _isStarted: boolean = false;
 
-  // Singleton
-  private static _instance: BLEManagerInnoveit;
-  private constructor() {
+  listener: ListenerCallback;
+
+  constructor(lc: ListenerCallback) {
+    this.listener = lc;
+
+    console.log(`My listener: ${JSON.stringify(this.listener)}`);
     this._start();
     this._addListeners();
-  }
-
-  static getInstance() {
-    if (!BLEManagerInnoveit._instance) {
-      BLEManagerInnoveit._instance = new BLEManagerInnoveit();
-    }
-    return BLEManagerInnoveit._instance;
   }
 
   // Startable
@@ -204,8 +197,28 @@ export default class BLEManagerInnoveit implements IBleService {
     );
   }
 
-  static removeListeners(): void {
-    bleManagerEmitter.removeAllListeners();
+  removeListeners(): void {
+    bleManagerEmitter.removeListener(STOP_SCAN_BLE_EVENT, this._handleStopScan);
+    bleManagerEmitter.removeListener(
+      DISCOVER_BLE_EVENT,
+      this._handleDiscoverPeripheral
+    );
+    bleManagerEmitter.removeListener(
+      CONNECT_BLE_EVENT,
+      this._handleConnectPeripheral
+    );
+    bleManagerEmitter.removeListener(
+      DISCONNECT_BLE_EVENT,
+      this._handleDisconnectPeripheral
+    );
+    bleManagerEmitter.removeListener(
+      STATE_CHANGE_BLE_EVENT,
+      this._handleUpdateState
+    );
+    bleManagerEmitter.removeListener(
+      CHARACTERISTIC_VALUE_UPDATE_BLE_EVENT,
+      this._handleUpdateValueForCharacteristic
+    );
   }
   // Event handlers
   /*
@@ -217,9 +230,11 @@ export default class BLEManagerInnoveit implements IBleService {
     BleManagerDisconnectPeripheral
   */
   private _handleStopScan(): void {}
-  private _handleDiscoverPeripheral(peripheral: IPeripheral): void {
+  _handleDiscoverPeripheral = (peripheral: IPeripheral): void => {
     console.log(`FROM DISCOVER: ${JSON.stringify(peripheral)}`);
-  }
+
+    // this.listener.listenerCallback(peripheral);
+  };
   private _handleConnectPeripheral(): void {}
   private _handleDisconnectPeripheral(): void {}
   private _handleUpdateState(): void {}
