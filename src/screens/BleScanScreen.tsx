@@ -24,6 +24,8 @@ class BleScanScreen extends Component<Props, State>
   constructor(props: Props) {
     super(props);
 
+    console.log(`BLESCANSCREEN: ${this} is of type: ${typeof this}`);
+
     this.myBleService = IBLEServiceFactory.getInstance(
       BleServiceLibrary.Innoveit,
       this

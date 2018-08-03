@@ -71,7 +71,9 @@ export default class BLEManagerInnoveit implements IBleService {
   constructor(lc: ListenerCallback) {
     this.listener = lc;
 
-    console.log(`My listener: ${JSON.stringify(this.listener)}`);
+    console.log(
+      `My LISTENER: ${JSON.stringify(this.listener)} of type: ${this.listener}`
+    );
     this._start();
     this._addListeners();
   }
@@ -230,10 +232,10 @@ export default class BLEManagerInnoveit implements IBleService {
     BleManagerDisconnectPeripheral
   */
   private _handleStopScan(): void {}
-  _handleDiscoverPeripheral = (peripheral: IPeripheral): void => {
+  private _handleDiscoverPeripheral = (peripheral: IPeripheral): void => {
     console.log(`FROM DISCOVER: ${JSON.stringify(peripheral)}`);
 
-    // this.listener.listenerCallback(peripheral);
+    this.listener.listenerCallback(peripheral);
   };
   private _handleConnectPeripheral(): void {}
   private _handleDisconnectPeripheral(): void {}
