@@ -6,6 +6,7 @@ import { IBleService, ListenerCallback } from "../bleService/IBleService";
 import IBLEServiceFactory, {
   BleServiceLibrary
 } from "../bleService/IBleServiceFactory";
+import BleScanResults from "./BleScanResults";
 
 interface Props {
   navigator: NavigatorIOS;
@@ -23,8 +24,6 @@ class BleScanScreen extends Component<Props, State>
 
   constructor(props: Props) {
     super(props);
-
-    console.log(`BLESCANSCREEN: ${this} is of type: ${typeof this}`);
 
     this.myBleService = IBLEServiceFactory.getInstance(
       BleServiceLibrary.Innoveit,
@@ -49,7 +48,6 @@ class BleScanScreen extends Component<Props, State>
 
   startScan = () => {
     if (this.myBleService) {
-      this.setState({ peripherals: [] });
       this.myBleService.startScan();
     }
   };
@@ -64,10 +62,23 @@ class BleScanScreen extends Component<Props, State>
     );
   }
 
-  listenerCallback(peripheral: IPeripheral): void {
-    console.log(
-      "My peripheral from inside the screen: " + JSON.stringify(peripheral)
-    );
+  onDiscoverPeripheral(peripheral: IPeripheral): void {
+    const idList = Array.from(this.state.peripherals.map(x => x.id));
+
+    if (!idList.includes(peripheral.id)) {
+      this.setState({ peripherals: [...this.state.peripherals, peripheral] });
+    }
+  }
+
+  onStopScan(): void {
+    console.log(JSON.stringify(this.state.peripherals));
+    const list = Array.from(this.state.peripherals.values());
+
+    this.props.navigator.push({
+      title: "Results",
+      component: BleScanResults,
+      passProps: { peripherals: list }
+    });
   }
 }
 

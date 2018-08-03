@@ -174,7 +174,7 @@ export default class BLEManagerInnoveit implements IBleService {
   // Notifiable
   notify(): void {}
 
-  // Helper methods
+  // Listener initialization
   private _addListeners(): void {
     bleManagerEmitter.addListener(STOP_SCAN_BLE_EVENT, this._handleStopScan);
     bleManagerEmitter.addListener(
@@ -231,11 +231,14 @@ export default class BLEManagerInnoveit implements IBleService {
     BleManagerConnectPeripheral,
     BleManagerDisconnectPeripheral
   */
-  private _handleStopScan(): void {}
+  private _handleStopScan = (): void => {
+    console.log("I have completed");
+    this.listener.onStopScan();
+  };
   private _handleDiscoverPeripheral = (peripheral: IPeripheral): void => {
     console.log(`FROM DISCOVER: ${JSON.stringify(peripheral)}`);
 
-    this.listener.listenerCallback(peripheral);
+    this.listener.onDiscoverPeripheral(peripheral);
   };
   private _handleConnectPeripheral(): void {}
   private _handleDisconnectPeripheral(): void {}

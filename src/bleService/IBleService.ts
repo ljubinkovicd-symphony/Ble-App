@@ -37,5 +37,6 @@ export interface IBleService
 }
 
 export interface ListenerCallback {
-  listenerCallback(peripheral: IPeripheral): void;
+  onDiscoverPeripheral(peripheral: IPeripheral): void;
+  onStopScan(): void;
 }
