@@ -1,5 +1,5 @@
 import { IBleService, ListenerCallback } from "./IBleService";
-import BLEManagerInnoveit from "./BleManagerInnoveit";
+import BLEInnoveit from "./BLEInnoveit";
 
 export const enum BleServiceLibrary {
   Innoveit,
@@ -16,7 +16,7 @@ export default class IBLEServiceFactory {
     if (!this.instance) {
       if (bleServiceLib === BleServiceLibrary.Innoveit) {
         console.log("MY BLE SERVICE LIBRARY IS INNOVEIT!!!");
-        this.instance = new BLEManagerInnoveit(listenerCallback);
+        this.instance = new BLEInnoveit(listenerCallback);
       } else if (bleServiceLib === BleServiceLibrary.Polidea) {
         // instantiate Polidea BLE service
       }

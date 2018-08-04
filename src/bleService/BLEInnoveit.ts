@@ -58,7 +58,7 @@ const STOP_SCAN_BLE_EVENT: string = "BleManagerStopScan";
 const CHARACTERISTIC_VALUE_UPDATE_BLE_EVENT: string =
   "BleManagerDidUpdateValueForCharacteristic";
 
-export default class BLEManagerInnoveit implements IBleService {
+export default class BLEInnoveit implements IBleService {
   peripherals: Array<IPeripheral> = [];
   peripheralID: string = "";
   serviceUUID: string = "";
