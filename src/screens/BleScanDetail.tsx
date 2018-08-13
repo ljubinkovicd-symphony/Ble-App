@@ -3,14 +3,18 @@ import BleManager from "react-native-ble-manager";
 import { Alert, View, NativeModules, NativeEventEmitter } from "react-native";
 import { CardSection, Button } from "../common";
 import { IPeripheral, ICharacteristic } from "../models";
-import BLEInnoveit from "../bleService/BLEInnoveit";
+import {
+  CONNECT_BLE_EVENT,
+  DISCONNECT_BLE_EVENT,
+  CADENCE_CASE_EVENT_CHARACTERISTIC,
+  CADENCE_CASE_UUID,
+  CADENCE_BLISTER_PACK_UUID,
+  CADENCE_BLISTER_PACK_PLACED_REMOVED_EVENT,
+  MANUFACTURER_NAME_CHARACTERISTIC
+} from "../bleService/Constants";
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
-
-const BATTERY_LEVEL_CHARACTERISTIC = "2A19";
-const CONNECT_BLE_EVENT = "BleManagerConnectPeripheral";
-const DISCONNECT_BLE_EVENT = "BleManagerDisconnectPeripheral";
 
 interface Props {
   thePeripheral: IPeripheral;
@@ -64,6 +68,7 @@ class BleScanDetail extends React.Component<Props, State> {
     BleManager.connect(prphId)
       .then(() => {
         // Success code
+        console.log(`Connected to: ${prphId}`);
         this.setState({ isConnected: true });
       })
       .catch((error: Error) => {
@@ -89,6 +94,41 @@ class BleScanDetail extends React.Component<Props, State> {
     }
   };
 
+  startWrite = () => {
+    const byteArrayDataToSend = this.unpack("Djole je car");
+
+    console.log("My unpacked data: " + byteArrayDataToSend);
+
+    const prphId = this.props.thePeripheral.id;
+
+    BleManager.write(
+      prphId,
+      "A0DD7243-53AE-42F9-BF2B-5981D5C30EA6",
+      "4DE63F41-3C3F-4A56-9875-A723BF4BE3A3",
+      byteArrayDataToSend
+    )
+      .then(() => {
+        // Success code
+        console.log("Writing data: " + byteArrayDataToSend);
+      })
+      .catch((error: Error) => {
+        // Failure code
+        console.log(error);
+      });
+  };
+
+  unpack(str: string): number[] {
+    const bytes = [];
+
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      bytes.push(char >>> 8);
+      bytes.push(char & 0xff);
+    }
+
+    return bytes;
+  }
+
   readCharacteristics(
     peripheralId: string,
     serviceUUID: string,
@@ -96,15 +136,56 @@ class BleScanDetail extends React.Component<Props, State> {
   ) {
     BleManager.read(peripheralId, serviceUUID, characteristicUUID)
       .then((readData: any) => {
-        // Success code
-        if (characteristicUUID === BATTERY_LEVEL_CHARACTERISTIC) {
-          const prphName = this.props.thePeripheral.name.toString();
-          Alert.alert(
-            `${prphName}'s battery level:`,
-            `${readData}%`,
-            [{ text: "OK", onPress: () => console.log("OK Pressed") }],
-            { cancelable: false }
-          );
+        console.log(`Reading characteristic: ${characteristicUUID}`);
+
+        switch (characteristicUUID) {
+          case "2A2B":
+            Alert.alert(
+              `${this.props.thePeripheral.name}'s battery level:`,
+              `${readData}%`,
+              [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+              { cancelable: false }
+            );
+            return;
+          case CADENCE_CASE_EVENT_CHARACTERISTIC:
+            console.log("MY NUMBER IS: " + readData);
+            Alert.alert(
+              `${this.props.thePeripheral.name}'s case event:`,
+              `${(readData as number) == 1 ? "Open" : "Closed"}`,
+              [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+              { cancelable: false }
+            );
+            return;
+          case MANUFACTURER_NAME_CHARACTERISTIC:
+            const binaryRepresentation = [];
+            const characterRepresentation = [];
+
+            for (let i = 0; i < readData.length; i++) {
+              binaryRepresentation[i] = readData[i].toString(2);
+              characterRepresentation[i] = this.binaryToString(
+                binaryRepresentation[i]
+              );
+            }
+
+            const reducer = (accumulator: string, currentValue: string) =>
+              accumulator + currentValue;
+            const manufacturerString = characterRepresentation.reduce(
+              reducer,
+              ""
+            );
+
+            // Manufacturer's string
+            console.log("Reading manufacturer's string...");
+            const prphName = this.props.thePeripheral.name.toString();
+            Alert.alert(
+              `${prphName}'s manufacturer name:`,
+              `${manufacturerString}`,
+              [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+              { cancelable: false }
+            );
+            return;
+          default:
+            break;
         }
       })
       .catch((error: Error) => {
@@ -112,6 +193,48 @@ class BleScanDetail extends React.Component<Props, State> {
         console.log(error);
       });
   }
+
+  binaryToString(str: string) {
+    const newBinary = str.split(" ");
+    const binaryCode = [];
+    for (let i = 0; i < newBinary.length; i++) {
+      binaryCode.push(String.fromCharCode(parseInt(newBinary[i], 2)));
+    }
+    return binaryCode.join("");
+  }
+
+  // need to call retrieveServices method before
+  startSubscribe = () => {
+    const prphId = this.props.thePeripheral.id.toString();
+
+    BleManager.startNotification(
+      prphId,
+      CADENCE_CASE_UUID,
+      CADENCE_CASE_EVENT_CHARACTERISTIC
+    )
+      .then(() => {
+        // success code
+        console.log("Cadence case notification started!");
+      })
+      .catch((error: Error) => {
+        // failure code
+        console.log(error);
+      });
+
+    BleManager.startNotification(
+      prphId,
+      CADENCE_BLISTER_PACK_UUID,
+      CADENCE_BLISTER_PACK_PLACED_REMOVED_EVENT
+    )
+      .then(() => {
+        // success code
+        console.log("Cadence blister pack notification started!");
+      })
+      .catch((error: Error) => {
+        // failure code
+        console.log(error);
+      });
+  };
 
   startDisconnect = () => {
     const prphId = this.props.thePeripheral.id.toString();
@@ -133,6 +256,11 @@ class BleScanDetail extends React.Component<Props, State> {
         if (isConnected) {
           BleManager.retrieveServices(prphId).then((peripheralInfo: any) => {
             // Success code
+            console.log(
+              `Here are the services from the peripheral:\n${JSON.stringify(
+                peripheralInfo
+              )}`
+            );
             this.setState({ characteristics: peripheralInfo.characteristics });
           });
         } else {
@@ -174,6 +302,22 @@ class BleScanDetail extends React.Component<Props, State> {
     }
   }
 
+  renderWriteButton() {
+    if (this.state.isConnected) {
+      const prphName = this.props.thePeripheral.name.toString();
+      return <Button onPress={this.startWrite}>Write to {prphName}</Button>;
+    }
+  }
+
+  renderSubscribeButton() {
+    if (this.state.isConnected) {
+      const prphName = this.props.thePeripheral.name.toString();
+      return (
+        <Button onPress={this.startSubscribe}>Subscribe to {prphName}</Button>
+      );
+    }
+  }
+
   render() {
     const peripheralName = this.props.thePeripheral.name;
 
@@ -193,6 +337,8 @@ class BleScanDetail extends React.Component<Props, State> {
         </CardSection>
 
         <CardSection>{this.renderReadButton()}</CardSection>
+        <CardSection>{this.renderWriteButton()}</CardSection>
+        <CardSection>{this.renderSubscribeButton()}</CardSection>
         <CardSection>{this.renderDisconnectButton()}</CardSection>
       </View>
     );

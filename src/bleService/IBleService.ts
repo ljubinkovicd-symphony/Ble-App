@@ -1,4 +1,5 @@
 import { IPeripheral } from "../models";
+import { ISubscription } from "../models/ISubscription";
 
 // Devices can be connectable, databases...
 export interface IConnectable {
@@ -39,4 +40,6 @@ export interface IBleService
 export interface ListenerCallback {
   onDiscoverPeripheral(peripheral: IPeripheral): void;
   onStopScan(): void;
+  onUpdateCharacteristic(data: ISubscription<any>): void;
+  onStateChange(args: any): void;
 }

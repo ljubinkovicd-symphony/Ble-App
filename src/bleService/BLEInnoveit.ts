@@ -3,6 +3,7 @@ import { IBleService, ListenerCallback } from "./IBleService";
 import BleManager from "react-native-ble-manager";
 import { NativeModules, NativeEventEmitter } from "react-native";
 import { IPeripheral } from "../models";
+import { ISubscription } from "../models/ISubscription";
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
@@ -94,7 +95,7 @@ export default class BLEInnoveit implements IBleService {
 
   // Scanable
   startScan(): void {
-    BleManager.scan([], 3).then(() => {
+    BleManager.scan([], 1).then(() => {
       console.log("Scanning for devices...");
     });
   }
@@ -242,6 +243,16 @@ export default class BLEInnoveit implements IBleService {
   };
   private _handleConnectPeripheral(): void {}
   private _handleDisconnectPeripheral(): void {}
-  private _handleUpdateState(): void {}
-  private _handleUpdateValueForCharacteristic(): void {}
+  private _handleUpdateState = (args: any): void => {
+    console.log("_handleUpdateState called!");
+
+    this.listener.onStateChange(args);
+  };
+  private _handleUpdateValueForCharacteristic = (
+    data: ISubscription<any>
+  ): void => {
+    console.log("characteristic update called");
+
+    this.listener.onUpdateCharacteristic(data);
+  };
 }

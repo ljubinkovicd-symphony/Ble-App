@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { NavigatorIOS, FlatList } from "react-native";
 import ResultItem from "../components/BleScanItem";
-import BleScanDetail from "../screens/BleScanDetail";
+import BleScanDetail from "./BleScanDetail";
 import { IPeripheral } from "../models";
 
 interface Props {
