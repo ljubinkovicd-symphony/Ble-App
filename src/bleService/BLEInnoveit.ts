@@ -2,8 +2,7 @@
 import { IBleService, ListenerCallback } from "./IBleService";
 import BleManager from "react-native-ble-manager";
 import { NativeModules, NativeEventEmitter } from "react-native";
-import { IPeripheral } from "../models";
-import { ISubscription } from "../models/ISubscription";
+import { IPeripheral, ISubscription } from "../models";
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);

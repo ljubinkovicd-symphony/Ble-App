@@ -1,5 +1,4 @@
-import { IPeripheral } from "../models";
-import { ISubscription } from "../models/ISubscription";
+import { IPeripheral, ISubscription } from "../models";
 
 // Devices can be connectable, databases...
 export interface IConnectable {

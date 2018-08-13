@@ -1,13 +1,12 @@
 import React, { Component } from "react";
 import { View, NavigatorIOS, Alert } from "react-native";
 import { Button } from "../components/common";
-import { IPeripheral } from "../models";
+import { IPeripheral, ISubscription } from "../models";
 import { IBleService, ListenerCallback } from "../bleService/IBleService";
 import IBLEServiceFactory, {
   BleServiceLibrary
 } from "../bleService/IBleServiceFactory";
 import BleScanResults from "./BleScanResults";
-import { ISubscription } from "../models/ISubscription";
 import {
   CADENCE_CASE_EVENT_CHARACTERISTIC,
   CADENCE_BLISTER_PACK_PLACED_REMOVED_EVENT
