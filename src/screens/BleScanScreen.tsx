@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { View, NavigatorIOS, Alert } from "react-native";
-import { Button } from "../common";
+import { Button } from "../components/common";
 import { IPeripheral } from "../models";
 import { IBleService, ListenerCallback } from "../bleService/IBleService";
 import IBLEServiceFactory, {

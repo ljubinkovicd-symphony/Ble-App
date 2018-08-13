@@ -1,7 +1,7 @@
 import React from "react";
 import BleManager from "react-native-ble-manager";
 import { Alert, View, NativeModules, NativeEventEmitter } from "react-native";
-import { CardSection, Button } from "../common";
+import { CardSection, Button } from "../components/common";
 import { IPeripheral, ICharacteristic } from "../models";
 import {
   CONNECT_BLE_EVENT,
