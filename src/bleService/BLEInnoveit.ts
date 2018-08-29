@@ -240,7 +240,10 @@ export default class BLEInnoveit implements IBleService {
 
     this.listener.onDiscoverPeripheral(peripheral);
   };
-  private _handleConnectPeripheral(): void {}
+  private _handleConnectPeripheral = (peripheral: IPeripheral): void => {
+    console.log(`ON CONNECT PERIPHERAL`);
+    
+  }
   private _handleDisconnectPeripheral(): void {}
   private _handleUpdateState = (args: any): void => {
     console.log("_handleUpdateState called!");

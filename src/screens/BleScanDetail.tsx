@@ -250,10 +250,16 @@ class BleScanDetail extends React.Component<Props, State> {
   };
 
   handleConnectPeripheral() {
+    console.log("handleConnectPeripheral() called!");
     const prphId = this.props.thePeripheral.id.toString();
+    console.log(`HANDLE CONNECT PRPH ID: ${prphId}`);
+
     BleManager.isPeripheralConnected(prphId, []).then(
       (isConnected: boolean) => {
+        console.log("IN HERE?");
+
         if (isConnected) {
+          console.log("IN HERE now!??!?!?");
           BleManager.retrieveServices(prphId).then((peripheralInfo: any) => {
             // Success code
             console.log(
