@@ -11,6 +11,8 @@ import {
   CADENCE_CASE_EVENT_CHARACTERISTIC,
   CADENCE_BLISTER_PACK_PLACED_REMOVED_EVENT
 } from "../bleService/Constants";
+import { PeripheralsActionTypes } from "../store/peripherals/types";
+import { action } from "../store/configureStore";
 
 interface Props {
   navigator: NavigatorIOS;
@@ -137,11 +139,14 @@ class BleScanScreen extends Component<Props, State>
   }
 
   renderScanButton() {
-    if (this.state.isBluetooth) {
-      return <Button onPress={this.startScan}>Scan</Button>;
-    } else {
-      return <Button onPress={this.startScan}>Scan</Button>;
-    }
+    // return <Button onPress={this.startScan}>Scan</Button>;
+    return (
+      <Button
+        onPress={() => action(PeripheralsActionTypes.FETCH_REQUEST + "_ASYNC")}
+      >
+        Scan
+      </Button>
+    );
   }
 
   render() {

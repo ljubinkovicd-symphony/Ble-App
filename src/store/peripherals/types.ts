@@ -1,4 +1,4 @@
-import { IPeripheral } from "../models";
+import { IPeripheral } from "../../models";
 
 export const enum PeripheralsActionTypes {
   FETCH_REQUEST = "@@peripherals/FETCH_REQUEST",
