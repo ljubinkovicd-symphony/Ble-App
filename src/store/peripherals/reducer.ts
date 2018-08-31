@@ -101,5 +101,3 @@ const reducer: Reducer<PeripheralsState> = (state = INITIAL_STATE, action) => {
 // Instead of using default export, we use named exports. That way we can group these exports
 // inside the `index.ts` folder.
 export { reducer as peripheralsReducer };
-
-// const store = createStore(reducer);

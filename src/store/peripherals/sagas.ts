@@ -70,7 +70,7 @@ function* watchNotifyPeripheral() {
   );
 }
 
-export default function* rootSaga() {
+export default function* peripheralsSaga() {
   // yield takeLatest(PeripheralsActionTypes.FETCH_REQUEST, fetchPeripherals);
   yield all([
     watchScanPeripherals(),

@@ -12,7 +12,7 @@ import {
   CADENCE_BLISTER_PACK_PLACED_REMOVED_EVENT
 } from "../bleService/Constants";
 import { PeripheralsActionTypes } from "../store/peripherals/types";
-import { action } from "../store/configureStore";
+import { action } from "../configureStore";
 
 interface Props {
   navigator: NavigatorIOS;
