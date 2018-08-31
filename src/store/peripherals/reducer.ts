@@ -18,16 +18,80 @@ const INITIAL_STATE: PeripheralsState = {
 
 const reducer: Reducer<PeripheralsState> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-    case PeripheralsActionTypes.FETCH_REQUEST: {
-      console.log("NOT ASYNC");
+    case PeripheralsActionTypes.SCAN_REQUEST: {
       return { ...state, loading: true };
     }
-    case PeripheralsActionTypes.FETCH_SUCCESS: {
+
+    case PeripheralsActionTypes.DISCOVER_PERIPHERAL_SUCCESS: {
+      console.log(`DISCOVERED A PERIPHERAL: ${JSON.stringify(action.payload)}`);
+
       return { ...state, loading: false, data: action.payload };
     }
-    case PeripheralsActionTypes.FETCH_ERROR: {
+
+    case PeripheralsActionTypes.CONNECT_PERIPHERAL_REQUEST: {
+      console.log(
+        `TRYING TO CONNECT TO A PERIPHERAL: ${JSON.stringify(action.payload)}`
+      );
+
+      return { ...state, loading: false, data: action.payload };
+    }
+    case PeripheralsActionTypes.CONNECT_PERIPHERAL_SUCCESS: {
+      console.log(
+        `SUCCESSFULLY CONNECTED TO PERIPHERAL: ${JSON.stringify(
+          action.payload
+        )}`
+      );
+
+      return { ...state, loading: false, data: action.payload };
+    }
+    case PeripheralsActionTypes.CONNECT_PERIPHERAL_FAIL: {
+      console.log("FAILED TO CONNECT!");
+
       return { ...state, loading: false, errors: action.payload };
     }
+
+    case PeripheralsActionTypes.DISCONNECT_PERIPHERAL_REQUEST: {
+      console.log(
+        `TRYING TO DISCONNECT TO A PERIPHERAL: ${JSON.stringify(
+          action.payload
+        )}`
+      );
+
+      return { ...state, loading: false, data: action.payload };
+    }
+    case PeripheralsActionTypes.DISCONNECT_PERIPHERAL_SUCCESS: {
+      console.log(
+        `SUCCESSFULLY DISCONNECTED FROM PERIPHERAL: ${JSON.stringify(
+          action.payload
+        )}`
+      );
+
+      return { ...state, loading: false, data: action.payload };
+    }
+    case PeripheralsActionTypes.DISCONNECT_PERIPHERAL_FAIL: {
+      console.log("FAILED TO DISCONNECT!");
+
+      return { ...state, loading: false, errors: action.payload };
+    }
+
+    case PeripheralsActionTypes.READ_PERIPHERAL_REQUEST: {
+      console.log("TRYING TO READ FROM A PERIPHERAL");
+
+      return { ...state, loading: true };
+    }
+
+    case PeripheralsActionTypes.WRITE_PERIPHERAL_REQUEST: {
+      console.log("TRYING TO WRITE TO A PERIPHERAL");
+
+      return { ...state, loading: true };
+    }
+
+    case PeripheralsActionTypes.NOTIFY_PERIPHERAL_REQUEST: {
+      console.log("TRYING TO SUBSCRIBE TO A PERIPHERAL");
+
+      return { ...state, loading: true };
+    }
+
     default: {
       return state;
     }

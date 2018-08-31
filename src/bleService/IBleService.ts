@@ -23,6 +23,7 @@ export interface INotifiable {
   notify(): void;
 }
 
+// TODO: Remove this maybe ???
 export interface ListenerCallback {
   onDiscoverPeripheral(peripheral: IPeripheral): void;
   onStopScan(): void;

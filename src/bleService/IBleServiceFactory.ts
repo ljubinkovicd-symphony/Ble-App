@@ -11,12 +11,12 @@ export default class IBLEServiceFactory {
 
   public static getInstance(
     bleServiceLib: BleServiceLibrary,
-    listenerCallback: ListenerCallback
+    listenerCallback?: ListenerCallback
   ): IBleService {
     if (!this.instance) {
       if (bleServiceLib === BleServiceLibrary.Innoveit) {
         console.log("MY BLE SERVICE LIBRARY IS INNOVEIT!!!");
-        this.instance = new BLEInnoveit(listenerCallback);
+        this.instance = new BLEInnoveit();
       } else if (bleServiceLib === BleServiceLibrary.Polidea) {
         // instantiate Polidea BLE service
       }

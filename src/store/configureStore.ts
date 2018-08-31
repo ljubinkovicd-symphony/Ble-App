@@ -7,4 +7,5 @@ const sagaMiddleware = createSagaMiddleware();
 const store = createStore(peripheralsReducer, applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootSaga);
 
-export const action = (type: any) => store.dispatch({ type });
+export const action = (type: any, payload?: any) =>
+  store.dispatch({ type, payload });

@@ -3,6 +3,8 @@ import { IBleService, ListenerCallback } from "./IBleService";
 import BleManager from "react-native-ble-manager";
 import { NativeModules, NativeEventEmitter } from "react-native";
 import { IPeripheral, ISubscription } from "../models";
+import { action } from "../store/configureStore";
+import { PeripheralsActionTypes } from "../store/peripherals/types";
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
@@ -66,14 +68,8 @@ export default class BLEInnoveit implements IBleService {
 
   private _isStarted: boolean = false;
 
-  listener: ListenerCallback;
-
-  constructor(lc: ListenerCallback) {
-    this.listener = lc;
-
-    console.log(
-      `My LISTENER: ${JSON.stringify(this.listener)} of type: ${this.listener}`
-    );
+  constructor() {
+    console.log("INSIDE THE CTRC");
     this._start();
     this._addListeners();
   }
@@ -112,10 +108,18 @@ export default class BLEInnoveit implements IBleService {
       .then(() => {
         // Success code
         console.log(`BLE CONNECT INNOVEIT SUCCESS!!`);
+        action(
+          PeripheralsActionTypes.CONNECT_PERIPHERAL_SUCCESS,
+          this.peripheralID
+        );
       })
       .catch((error: Error) => {
         // Failure code
         console.log(`BLE INNOVEIT Error: ${error}`);
+        action(
+          PeripheralsActionTypes.CONNECT_PERIPHERAL_FAIL,
+          this.peripheralID
+        );
       });
   }
 
@@ -233,28 +237,25 @@ export default class BLEInnoveit implements IBleService {
   */
   private _handleStopScan = (): void => {
     console.log("I have completed");
-    this.listener.onStopScan();
   };
   private _handleDiscoverPeripheral = (peripheral: IPeripheral): void => {
     console.log(`FROM DISCOVER: ${JSON.stringify(peripheral)}`);
 
-    this.listener.onDiscoverPeripheral(peripheral);
+    // TODO: Add logic to select only Cadence peripheral and ignore others.
+    action(PeripheralsActionTypes.DISCOVER_PERIPHERAL_SUCCESS, peripheral);
   };
   private _handleConnectPeripheral = (peripheral: IPeripheral): void => {
     console.log(`ON CONNECT PERIPHERAL`);
-    
-  }
+
+    action(PeripheralsActionTypes.CONNECT_PERIPHERAL_SUCCESS, peripheral);
+  };
   private _handleDisconnectPeripheral(): void {}
   private _handleUpdateState = (args: any): void => {
     console.log("_handleUpdateState called!");
-
-    this.listener.onStateChange(args);
   };
   private _handleUpdateValueForCharacteristic = (
     data: ISubscription<any>
   ): void => {
     console.log("characteristic update called");
-
-    this.listener.onUpdateCharacteristic(data);
   };
 }

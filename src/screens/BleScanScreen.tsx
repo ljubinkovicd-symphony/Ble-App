@@ -13,7 +13,6 @@ import {
 } from "../bleService/Constants";
 import { PeripheralsActionTypes } from "../store/peripherals/types";
 import { action } from "../store/configureStore";
-import { fetchRequest } from "../store/peripherals/actions";
 
 interface Props {
   navigator: NavigatorIOS;
@@ -28,15 +27,15 @@ interface State {
 
 class BleScanScreen extends Component<Props, State>
   implements ListenerCallback {
-  myBleService: IBleService;
+  // myBleService: IBleService;
 
   constructor(props: Props) {
     super(props);
 
-    this.myBleService = IBLEServiceFactory.getInstance(
-      BleServiceLibrary.Innoveit,
-      this
-    );
+    // this.myBleService = IBLEServiceFactory.getInstance(
+    // BleServiceLibrary.Innoveit,
+    // this
+    // );
 
     this.state = {
       isBluetooth: false,
@@ -52,17 +51,18 @@ class BleScanScreen extends Component<Props, State>
 
   // TODO: Change this...
   componentWillUnmount() {
-    this.myBleService.removeListeners();
+    // this.myBleService.removeListeners();
   }
 
   startScan = () => {
-    action(PeripheralsActionTypes.FETCH_REQUEST);
+    action(PeripheralsActionTypes.SCAN_REQUEST);
 
     // if (this.myBleService) {
     //   this.myBleService.startScan();
     // }
   };
 
+  /** WON'T NEED ANY OF THIS HERE! */
   onDiscoverPeripheral(peripheral: IPeripheral): void {
     const idList = Array.from(this.state.peripherals.map(x => x.id));
 
@@ -140,6 +140,7 @@ class BleScanScreen extends Component<Props, State>
       this.setState({ isBluetooth: true });
     }
   }
+  /** ------------------------------------------------------------------------------------------ */
 
   renderScanButton() {
     return <Button onPress={this.startScan}>Scan</Button>;
