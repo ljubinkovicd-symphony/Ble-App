@@ -1,23 +1,64 @@
 import { delay } from "redux-saga";
-import { all, put, takeEvery } from "redux-saga/effects";
+import { all, put, call, takeEvery, takeLatest } from "redux-saga/effects";
 import { PeripheralsActionTypes } from "./types";
 
-// Our worker Saga: will perform the async increment task
-export function* helloSaga() {
-  yield delay(1000);
-  yield put({ type: PeripheralsActionTypes.FETCH_REQUEST });
+// testing, replace with factory
+import BleManager from "react-native-ble-manager";
+import { NativeModules, NativeEventEmitter } from "react-native";
+import { AnyAction } from "redux";
+
+const BleManagerModule = NativeModules.BleManager;
+const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
+
+export function fetchPeripherals() {
+  BleManager.scan([], 1).then(() => {
+    // Success code
+    console.log("SCAN HAS BEEN STARTED FROM THE SAGAS!");
+  });
 }
 
-// Our watcher Saga: spawn a new incrementAsync task on each PeripheralsActionTypes.FETCH_REQUEST
-export function* watchHelloSagaAsync() {
-  yield takeEvery(PeripheralsActionTypes.FETCH_REQUEST + "_ASYNC", helloSaga);
+export function* discoverPeripheralsData(action: AnyAction) {
+  try {
+    console.log("INSIDE DSICOVEOQWKEOWKQOR");
+
+    // any expression at the right of yield is evaluated then the result is yielded to the caller).
+    const peripheralsData = yield call(fetchPeripherals, action.payload);
+    yield put({ type: PeripheralsActionTypes.FETCH_SUCCESS, peripheralsData });
+  } catch (error) {
+    yield put({ type: PeripheralsActionTypes.FETCH_ERROR, error });
+  }
 }
 
-// notice how we now only export the rootSaga
-// single entry point to start all Sagas at once
+function* watchDiscoverPeripherals() {
+  yield takeLatest(
+    PeripheralsActionTypes.FETCH_REQUEST,
+    discoverPeripheralsData
+  );
+}
+
 export default function* rootSaga() {
-  yield all([helloSaga(), watchHelloSagaAsync()]);
+  // yield takeLatest(PeripheralsActionTypes.FETCH_REQUEST, fetchPeripherals);
+  yield all([watchDiscoverPeripherals()]);
 }
+
+/** ____________________________________________________________________________________________ */
+
+// // Our worker Saga: will perform the async increment task
+// export function* helloSaga() {
+//   yield delay(1000);
+//   yield put({ type: PeripheralsActionTypes.FETCH_REQUEST });
+// }
+
+// // Our watcher Saga: spawn a new incrementAsync task on each PeripheralsActionTypes.FETCH_REQUEST
+// export function* watchHelloSagaAsync() {
+//   yield takeEvery(PeripheralsActionTypes.FETCH_REQUEST + "_ASYNC", helloSaga);
+// }
+
+// // notice how we now only export the rootSaga
+// // single entry point to start all Sagas at once
+// export default function* rootSaga() {
+//   yield all([helloSaga(), watchHelloSagaAsync()]);
+// }
 
 /**
  * We import delay, a utility function that returns a Promise that will resolve after a specified number

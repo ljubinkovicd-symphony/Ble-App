@@ -18,14 +18,9 @@ const INITIAL_STATE: PeripheralsState = {
 
 const reducer: Reducer<PeripheralsState> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-    case PeripheralsActionTypes.FETCH_REQUEST + "_ASYNC": {
-      // return { ...state, loading: true };
-      console.log("ASYNC");
-    }
-
     case PeripheralsActionTypes.FETCH_REQUEST: {
-      // return { ...state, loading: true };
       console.log("NOT ASYNC");
+      return { ...state, loading: true };
     }
     case PeripheralsActionTypes.FETCH_SUCCESS: {
       return { ...state, loading: false, data: action.payload };

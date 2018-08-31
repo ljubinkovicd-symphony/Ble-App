@@ -13,6 +13,7 @@ import {
 } from "../bleService/Constants";
 import { PeripheralsActionTypes } from "../store/peripherals/types";
 import { action } from "../store/configureStore";
+import { fetchRequest } from "../store/peripherals/actions";
 
 interface Props {
   navigator: NavigatorIOS;
@@ -55,9 +56,11 @@ class BleScanScreen extends Component<Props, State>
   }
 
   startScan = () => {
-    if (this.myBleService) {
-      this.myBleService.startScan();
-    }
+    action(PeripheralsActionTypes.FETCH_REQUEST);
+
+    // if (this.myBleService) {
+    //   this.myBleService.startScan();
+    // }
   };
 
   onDiscoverPeripheral(peripheral: IPeripheral): void {
@@ -139,14 +142,14 @@ class BleScanScreen extends Component<Props, State>
   }
 
   renderScanButton() {
-    // return <Button onPress={this.startScan}>Scan</Button>;
-    return (
-      <Button
-        onPress={() => action(PeripheralsActionTypes.FETCH_REQUEST + "_ASYNC")}
-      >
-        Scan
-      </Button>
-    );
+    return <Button onPress={this.startScan}>Scan</Button>;
+    // return (
+    //   <Button
+    //     onPress={() => action(PeripheralsActionTypes.FETCH_REQUEST + "_ASYNC")}
+    //   >
+    //     Scan
+    //   </Button>
+    // );
   }
 
   render() {

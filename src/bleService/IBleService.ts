@@ -23,6 +23,13 @@ export interface INotifiable {
   notify(): void;
 }
 
+export interface ListenerCallback {
+  onDiscoverPeripheral(peripheral: IPeripheral): void;
+  onStopScan(): void;
+  onUpdateCharacteristic(data: ISubscription<any>): void;
+  onStateChange(args: any): void;
+}
+
 export interface IBleService
   extends IConnectable,
     IReadable,
@@ -34,11 +41,4 @@ export interface IBleService
   characteristicUUID: string;
 
   removeListeners(): void;
-}
-
-export interface ListenerCallback {
-  onDiscoverPeripheral(peripheral: IPeripheral): void;
-  onStopScan(): void;
-  onUpdateCharacteristic(data: ISubscription<any>): void;
-  onStateChange(args: any): void;
 }
