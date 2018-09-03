@@ -22,10 +22,24 @@ const reducer: Reducer<PeripheralsState> = (state = INITIAL_STATE, action) => {
       return { ...state, loading: true };
     }
 
+    case PeripheralsActionTypes.SCAN_STOP: {
+      console.log(
+        "THE SCANNING HAS ENDED! TIME TO SWITCH TO A NEW SCREEN AND TRY TO CONNECT WITH CADENCE HARDWARE!"
+      );
+
+      console.log(`The length is: ${JSON.stringify(state)}`);
+
+      return { ...state, loading: true };
+    }
+
     case PeripheralsActionTypes.DISCOVER_PERIPHERAL_SUCCESS: {
       console.log(`DISCOVERED A PERIPHERAL: ${JSON.stringify(action.payload)}`);
 
-      return { ...state, loading: false, data: action.payload };
+      return {
+        ...state,
+        loading: false,
+        peripheralsData: [...state.peripheralsData, action.payload]
+      };
     }
 
     case PeripheralsActionTypes.CONNECT_PERIPHERAL_REQUEST: {

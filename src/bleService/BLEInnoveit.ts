@@ -237,6 +237,8 @@ export default class BLEInnoveit implements IBleService {
   */
   private _handleStopScan = (): void => {
     console.log("I have completed");
+
+    action(PeripheralsActionTypes.SCAN_STOP);
   };
   private _handleDiscoverPeripheral = (peripheral: IPeripheral): void => {
     console.log(`FROM DISCOVER: ${JSON.stringify(peripheral)}`);
@@ -249,7 +251,11 @@ export default class BLEInnoveit implements IBleService {
 
     action(PeripheralsActionTypes.CONNECT_PERIPHERAL_SUCCESS, peripheral);
   };
-  private _handleDisconnectPeripheral(): void {}
+  private _handleDisconnectPeripheral(): void {
+    console.log(`ON DISCONNECT PERIPHERAL`);
+
+    action(PeripheralsActionTypes.DISCONNECT_PERIPHERAL_SUCCESS);
+  }
   private _handleUpdateState = (args: any): void => {
     console.log("_handleUpdateState called!");
   };

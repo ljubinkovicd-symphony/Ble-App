@@ -35,17 +35,8 @@ class BleScanScreen extends Component<AllProps> {
     console.log(JSON.stringify(this.props));
   }
 
-  // TODO: Change this...
-  componentWillUnmount() {
-    // this.myBleService.removeListeners();
-  }
-
   startScan = () => {
     action(PeripheralsActionTypes.SCAN_REQUEST);
-
-    // if (this.myBleService) {
-    //   this.myBleService.startScan();
-    // }
   };
 
   /** WON'T NEED ANY OF THIS HERE! */
@@ -130,13 +121,6 @@ class BleScanScreen extends Component<AllProps> {
 
   renderScanButton() {
     return <Button onPress={this.startScan}>Scan</Button>;
-    // return (
-    //   <Button
-    //     onPress={() => action(PeripheralsActionTypes.FETCH_REQUEST + "_ASYNC")}
-    //   >
-    //     Scan
-    //   </Button>
-    // );
   }
 
   render() {
