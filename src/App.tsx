@@ -1,18 +1,60 @@
-import React from "react";
-import { NavigatorIOS } from "react-native";
+import React, { Component } from "react";
+import { NavigatorIOS, AppState } from "react-native";
 import BleScanScreen from "./screens/BleScanScreen";
-// import { createStore, applyMidleware, combineReducers, compose } from "redux";
-// import thunkMiddleware from "redux-thunk";
-// import createLogger from "redux-logger";
+import { Store } from "redux";
+import { ApplicationState } from "./store";
+import { Provider, connect } from "react-redux";
+import { IPeripheral } from "./models";
+import { store } from "./configureStore";
+// import { store } from "./configureStore";
 
-const App = () => (
-  <NavigatorIOS
-    style={{ flex: 1 }}
-    initialRoute={{
-      component: BleScanScreen,
-      title: "Home"
-    }}
-  />
-);
+// Separate props from state and props from dispatch to their own interfaces.
+// interface PropsFromState {
+//   loading: boolean;
+//   errors?: string;
+//   peripheralsData: IPeripheral[];
+// }
+
+// interface PropsFromDispatch {
+//   [key: string]: any;
+// }
+
+interface OwnProps {
+  store: Store<ApplicationState>;
+}
+
+// type AllProps = PropsFromState & PropsFromDispatch & OwnProps;
+
+class App extends Component<OwnProps> {
+  render() {
+    // const { store } = this.props;
+
+    return (
+      <Provider store={store}>
+        <NavigatorIOS
+          style={{ flex: 1 }}
+          initialRoute={{
+            component: BleScanScreen,
+            title: "Home"
+          }}
+        />
+      </Provider>
+    );
+  }
+}
 
 export default App;
+
+// TODO: Refactor to use this instead of exporting store directly as a variable.
+// const mapStateToProps = ({ peripherals }: ApplicationState) => ({
+//   loading: peripherals.loading,
+//   errors: peripherals.errors,
+//   peripheralsData: peripherals.peripheralsData
+// });
+
+// export default connect<
+//   PropsFromState,
+//   PropsFromDispatch,
+//   OwnProps,
+//   ApplicationState
+// >(mapStateToProps)(App);

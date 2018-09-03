@@ -1,11 +1,7 @@
 import React, { Component } from "react";
-import { View, NavigatorIOS, Alert } from "react-native";
+import { View, Alert } from "react-native";
 import { Button } from "../components/common";
 import { IPeripheral, ISubscription } from "../models";
-import { IBleService, ListenerCallback } from "../bleService/IBleService";
-import IBLEServiceFactory, {
-  BleServiceLibrary
-} from "../bleService/IBleServiceFactory";
 import BleScanResults from "./BleScanResults";
 import {
   CADENCE_CASE_EVENT_CHARACTERISTIC,
@@ -13,40 +9,30 @@ import {
 } from "../bleService/Constants";
 import { PeripheralsActionTypes } from "../store/peripherals/types";
 import { action } from "../configureStore";
+import { fetchRequest } from "../store/peripherals/actions";
+import { ConnectedReduxProps } from "../store";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
 
-interface Props {
-  navigator: NavigatorIOS;
+// Separate state props + dispatch props to their own interfaces.
+interface PropsFromState {
+  loading: boolean;
+  peripheralsData: IPeripheral[];
+  errors: string;
 }
 
-interface State {
-  isBluetooth: boolean;
-  isScanning: boolean;
-  peripherals: Array<IPeripheral>;
-  appState: string;
+// We can use `typeof` here to map our dispatch types to the props, like so.
+interface PropsFromDispatch {
+  fetchRequest: typeof fetchRequest;
 }
 
-class BleScanScreen extends Component<Props, State>
-  implements ListenerCallback {
-  // myBleService: IBleService;
+// Combine both state + dispatch props - as well as any props we want to pass - in a union type.
+type AllProps = PropsFromState & PropsFromDispatch & ConnectedReduxProps;
 
-  constructor(props: Props) {
-    super(props);
-
-    // this.myBleService = IBLEServiceFactory.getInstance(
-    // BleServiceLibrary.Innoveit,
-    // this
-    // );
-
-    this.state = {
-      isBluetooth: false,
-      isScanning: false,
-      peripherals: [],
-      appState: ""
-    };
-  }
-
-  componentDidMount() {
-    // this.myBleWrapper = new BleWrapper(BLEManagerInnoveit.getInstance());
+class BleScanScreen extends Component<AllProps> {
+  public componentDidMount() {
+    console.log("componentDidMount() CALLED!");
+    console.log(JSON.stringify(this.props));
   }
 
   // TODO: Change this...
@@ -164,4 +150,10 @@ class BleScanScreen extends Component<Props, State>
   }
 }
 
-export default BleScanScreen;
+// mapDispatchToProps is especially useful for constraining our actions to the connected component.
+// You can access these via `this.props`.
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  fetchRequest: () => dispatch(fetchRequest())
+});
+
+export default connect(mapDispatchToProps)(BleScanScreen);

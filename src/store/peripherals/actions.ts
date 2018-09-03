@@ -1,7 +1,8 @@
 // Refactor so that action from "typesafe-actions" is used instead of custom action function.
-import { action } from "typesafe-actions";
+// import { action } from "typesafe-actions";
 import { PeripheralsActionTypes } from "./types";
 import { IPeripheral } from "../../models";
+import { action } from "../../configureStore";
 
 export const fetchRequest = () => action(PeripheralsActionTypes.SCAN_REQUEST);
 
