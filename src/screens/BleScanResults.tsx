@@ -1,16 +1,23 @@
 import React, { Component } from "react";
-import { NavigatorIOS, FlatList } from "react-native";
+import { FlatList } from "react-native";
 import ResultItem from "../components/BleScanItem";
 import BleScanDetail from "./BleScanDetail";
 import { IPeripheral } from "../models";
+import { Navigation } from "react-native-navigation";
+import { DETAIL_SCREEN } from ".";
 
 interface Props {
-  peripherals: Array<IPeripheral>;
-  navigator: NavigatorIOS;
+  peripherals: IPeripheral[];
+  componentId: string;
 }
-interface State {}
 
-class BleScanResults extends Component<Props, State> {
+class BleScanResults extends Component<Props> {
+  constructor(props: Props) {
+    super(props);
+
+    Navigation.events().bindComponent(this);
+  }
+
   _keyExtractor = (item: IPeripheral, index: number) => index.toString();
 
   _renderItem = (info: { item: IPeripheral; index: number }): JSX.Element => (
@@ -21,12 +28,26 @@ class BleScanResults extends Component<Props, State> {
     />
   );
 
-  _onPressItem = (index: number) => {
-    this.props.navigator.push({
-      title: "PeripheralDetail",
-      component: BleScanDetail,
-      passProps: { thePeripheral: this.props.peripherals[index] }
+  pushPeripheralDetailScreen(selectedPeripheral: IPeripheral) {
+    Navigation.push(this.props.componentId, {
+      component: {
+        name: DETAIL_SCREEN,
+        passProps: {
+          thePeripheral: selectedPeripheral
+        },
+        options: {
+          topBar: {
+            title: {
+              text: `${selectedPeripheral.name}`
+            }
+          }
+        }
+      }
     });
+  }
+
+  _onPressItem = (index: number) => {
+    this.pushPeripheralDetailScreen(this.props.peripherals[index]);
   };
 
   render() {

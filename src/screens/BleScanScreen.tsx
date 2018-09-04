@@ -52,7 +52,7 @@ class BleScanScreen extends PureComponent<AllProps> {
       component: {
         name: RESULTS_SCREEN,
         passProps: {
-          text: "JUST SOMETHING TO PASS ALONG"
+          peripherals: this.props.peripheralsData
         },
         options: {
           topBar: {
