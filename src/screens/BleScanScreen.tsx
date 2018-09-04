@@ -9,8 +9,8 @@ import {
 } from "../bleService/Constants";
 import { PeripheralsActionTypes } from "../store/peripherals/types";
 import { action } from "../configureStore";
-import { fetchRequest } from "../store/peripherals/actions";
-import { ConnectedReduxProps } from "../store";
+import { scanRequest } from "../store/peripherals/actions";
+import { ConnectedReduxProps, ApplicationState } from "../store";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { Navigation } from "react-native-navigation";
@@ -29,7 +29,7 @@ interface PropsFromState {
 
 // We can use `typeof` here to map our dispatch types to the props, like so.
 interface PropsFromDispatch {
-  fetchRequest: typeof fetchRequest;
+  fetchRequest: typeof scanRequest;
 }
 
 // Combine both state + dispatch props - as well as any props we want to pass - in a union type.
@@ -65,15 +65,20 @@ class BleScanScreen extends PureComponent<AllProps> {
     });
   }
 
-  public componentDidMount() {
+  componentDidMount() {
     console.log("componentDidMount() CALLED!");
     console.log(JSON.stringify(this.props));
   }
 
+  // Called immediately after updating occurs. Not called for the initial render.
+  componentDidUpdate() {
+    if (!this.props.loading) {
+      this.pushPeripheralListScreen();
+    }
+  }
+
   startScan = () => {
-    // action(PeripheralsActionTypes.SCAN_REQUEST);
-    fetchRequest();
-    // this.pushPeripheralListScreen();
+    scanRequest();
   };
 
   /** WON'T NEED ANY OF THIS HERE! */
@@ -157,7 +162,11 @@ class BleScanScreen extends PureComponent<AllProps> {
   /** ------------------------------------------------------------------------------------------ */
 
   renderScanButton() {
-    return <Button onPress={this.startScan}>Scan</Button>;
+    if (this.props.loading) {
+      return <Button>SCANNING...</Button>;
+    } else {
+      return <Button onPress={this.startScan}>Scan</Button>;
+    }
   }
 
   render() {
@@ -171,10 +180,22 @@ class BleScanScreen extends PureComponent<AllProps> {
   }
 }
 
+// It's usually good practice to only include one context at a time in a connected component.
+// Although if necessary, you can always include multiple contexts. Just make sure to
+// separate them from each other to prevent prop conflicts.
+const mapStateToProps = ({ peripherals }: ApplicationState) => ({
+  loading: peripherals.loading,
+  errors: peripherals.errors,
+  peripheralsData: peripherals.peripheralsData
+});
+
 // mapDispatchToProps is especially useful for constraining our actions to the connected component.
 // You can access these via `this.props`.
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  fetchRequest: () => dispatch(fetchRequest())
+  fetchRequest: () => dispatch(scanRequest())
 });
 
-export default connect(mapDispatchToProps)(BleScanScreen);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(BleScanScreen);

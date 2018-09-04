@@ -5,11 +5,10 @@ import { IPeripheral } from "../../models";
 import { action } from "../../configureStore";
 
 export const scanRequest = () => {
-  console.log("CAO MALA SA IMA");
   action(PeripheralsActionTypes.SCAN_REQUEST);
 };
 
-export const fetchSuccess = (data: IPeripheral[]) =>
+export const scanDiscoverSuccess = (data: IPeripheral) =>
   action(PeripheralsActionTypes.DISCOVER_PERIPHERAL_SUCCESS, data);
 export const fetchError = (message: string) =>
   action(PeripheralsActionTypes.FETCH_ERROR, message);

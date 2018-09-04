@@ -5,6 +5,7 @@ import { NativeModules, NativeEventEmitter } from "react-native";
 import { IPeripheral, ISubscription } from "../models";
 import { action } from "../configureStore";
 import { PeripheralsActionTypes } from "../store/peripherals/types";
+import { scanDiscoverSuccess } from "../store/peripherals/actions";
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
@@ -244,7 +245,8 @@ export default class BLEInnoveit implements IBleService {
     console.log(`FROM DISCOVER: ${JSON.stringify(peripheral)}`);
 
     // TODO: Add logic to select only Cadence peripheral and ignore others.
-    action(PeripheralsActionTypes.DISCOVER_PERIPHERAL_SUCCESS, peripheral);
+    // action(PeripheralsActionTypes.DISCOVER_PERIPHERAL_SUCCESS, peripheral);
+    scanDiscoverSuccess(peripheral);
   };
   private _handleConnectPeripheral = (peripheral: IPeripheral): void => {
     console.log(`ON CONNECT PERIPHERAL`);
