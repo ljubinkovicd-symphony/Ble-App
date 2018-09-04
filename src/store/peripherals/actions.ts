@@ -4,7 +4,10 @@ import { PeripheralsActionTypes } from "./types";
 import { IPeripheral } from "../../models";
 import { action } from "../../configureStore";
 
-export const fetchRequest = () => action(PeripheralsActionTypes.SCAN_REQUEST);
+export const scanRequest = () => {
+  console.log("CAO MALA SA IMA");
+  action(PeripheralsActionTypes.SCAN_REQUEST);
+};
 
 export const fetchSuccess = (data: IPeripheral[]) =>
   action(PeripheralsActionTypes.DISCOVER_PERIPHERAL_SUCCESS, data);

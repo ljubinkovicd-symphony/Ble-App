@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import { View, Alert } from "react-native";
 import { Button } from "../components/common";
 import { IPeripheral, ISubscription } from "../models";
@@ -13,6 +13,12 @@ import { fetchRequest } from "../store/peripherals/actions";
 import { ConnectedReduxProps } from "../store";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
+import { Navigation } from "react-native-navigation";
+import { MAIN_SCREEN, RESULTS_SCREEN, DETAIL_SCREEN } from ".";
+
+interface Props {
+  componentId: string;
+}
 
 // Separate state props + dispatch props to their own interfaces.
 interface PropsFromState {
@@ -27,16 +33,47 @@ interface PropsFromDispatch {
 }
 
 // Combine both state + dispatch props - as well as any props we want to pass - in a union type.
-type AllProps = PropsFromState & PropsFromDispatch & ConnectedReduxProps;
+type AllProps = Props &
+  PropsFromState &
+  PropsFromDispatch &
+  ConnectedReduxProps;
 
-class BleScanScreen extends Component<AllProps> {
+class BleScanScreen extends PureComponent<AllProps> {
+  constructor(props: AllProps) {
+    super(props);
+
+    Navigation.events().bindComponent(this);
+
+    this.pushPeripheralListScreen = this.pushPeripheralListScreen.bind(this);
+  }
+
+  pushPeripheralListScreen() {
+    Navigation.push(this.props.componentId, {
+      component: {
+        name: RESULTS_SCREEN,
+        passProps: {
+          text: "JUST SOMETHING TO PASS ALONG"
+        },
+        options: {
+          topBar: {
+            title: {
+              text: "LIST OF PERIPHERALS"
+            }
+          }
+        }
+      }
+    });
+  }
+
   public componentDidMount() {
     console.log("componentDidMount() CALLED!");
     console.log(JSON.stringify(this.props));
   }
 
   startScan = () => {
-    action(PeripheralsActionTypes.SCAN_REQUEST);
+    // action(PeripheralsActionTypes.SCAN_REQUEST);
+    fetchRequest();
+    // this.pushPeripheralListScreen();
   };
 
   /** WON'T NEED ANY OF THIS HERE! */

@@ -4,7 +4,6 @@ import BleScanScreen from "./screens/BleScanScreen";
 import { Store } from "redux";
 import { ApplicationState } from "./store";
 import { Provider, connect } from "react-redux";
-import { IPeripheral } from "./models";
 import { store } from "./configureStore";
 // import { store } from "./configureStore";
 
