@@ -6,6 +6,7 @@ import { IPeripheral, ISubscription } from "../models";
 import { action } from "../configureStore";
 import { PeripheralsActionTypes } from "../store/peripherals/types";
 import { scanDiscoverSuccess } from "../store/peripherals/actions";
+import { SCAN_TIMEOUT_DURATION } from './Constants';
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
@@ -91,7 +92,7 @@ export default class BLEInnoveit implements IBleService {
 
   // Scanable
   startScan(): void {
-    BleManager.scan([], 1).then(() => {
+    BleManager.scan([], SCAN_TIMEOUT_DURATION).then(() => {
       console.log("Scanning for devices...");
     });
   }
@@ -105,6 +106,8 @@ export default class BLEInnoveit implements IBleService {
 
   // Connectable
   connect(): void {
+    console.log(`What is the ID: ${this.peripheralID}`);
+
     BleManager.connect(this.peripheralID)
       .then(() => {
         // Success code
@@ -177,7 +180,7 @@ export default class BLEInnoveit implements IBleService {
 
   /** Before write, read or start notification you need to call the retrieveServices method */
   // Notifiable
-  notify(): void {}
+  notify(): void { }
 
   // Listener initialization
   private _addListeners(): void {
@@ -246,7 +249,16 @@ export default class BLEInnoveit implements IBleService {
 
     // TODO: Add logic to select only Cadence peripheral and ignore others.
     // action(PeripheralsActionTypes.DISCOVER_PERIPHERAL_SUCCESS, peripheral);
-    scanDiscoverSuccess(peripheral);
+    // TODO: testing (replace with Cadence ID)
+    if (peripheral.id.includes("F96AEB4B-5FD7-8BC2-E9C5-6B84F7EADCE6")) {
+      scanDiscoverSuccess(peripheral);
+      BleManager.stopScan().then(() => {
+        // Success code
+        console.log("I am done scanning. I found my peripheral.");
+        action(PeripheralsActionTypes.SCAN_STOP);
+        action(PeripheralsActionTypes.CONNECT_PERIPHERAL_REQUEST, peripheral);
+      });
+    }
   };
   private _handleConnectPeripheral = (peripheral: IPeripheral): void => {
     console.log(`ON CONNECT PERIPHERAL`);

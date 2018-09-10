@@ -19,7 +19,19 @@ Navigation.events().registerAppLaunchedListener(() => {
         options: {
           topBar: {
             title: {
-              text: "Main Screen"
+              text: "Pair Compact",
+
+            },
+            rightButtons: [
+              {
+                id: "nextButton",
+                text: "Next >",
+                color: "#2A2A2C",
+                fontSize: 14
+              }
+            ],
+            background: {
+              color: '#EBEBF9',
             }
           }
         }

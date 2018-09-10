@@ -19,7 +19,7 @@ const INITIAL_STATE: PeripheralsState = {
 const reducer: Reducer<PeripheralsState> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case PeripheralsActionTypes.SCAN_REQUEST: {
-      return { ...state, loading: true };
+      return { ...state, peripheralsData: [], loading: true };
     }
 
     case PeripheralsActionTypes.SCAN_STOP: {
