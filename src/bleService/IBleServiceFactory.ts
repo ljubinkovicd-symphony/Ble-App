@@ -24,3 +24,5 @@ export default class IBLEServiceFactory {
     return this.instance!; // TODO: avoid force unwraping
   }
 }
+
+export const SELECTED_BLE_LIBRARY: BleServiceLibrary = BleServiceLibrary.Innoveit

@@ -6,7 +6,10 @@ import { IPeripheral, ISubscription } from "../models";
 import { action } from "../configureStore";
 import { PeripheralsActionTypes } from "../store/peripherals/types";
 import { scanDiscoverSuccess } from "../store/peripherals/actions";
-import { SCAN_TIMEOUT_DURATION } from './Constants';
+import { SCAN_TIMEOUT_DURATION } from "./Constants";
+import { PeripheralActionTypes } from "../store/peripheral/types";
+import { CADENCE_COMPACT_PERIPHERAL_ID } from "./Constants";
+import { BluetoothActionTypes } from "../store/bluetooth/types";
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
@@ -112,8 +115,20 @@ export default class BLEInnoveit implements IBleService {
       .then(() => {
         // Success code
         console.log(`BLE CONNECT INNOVEIT SUCCESS!!`);
+
+        BleManager.retrieveServices(this.peripheralID).then(
+          (peripheralInfo: any) => {
+            // Success code
+            console.log(
+              `Here are characteristics from the peripheral:\n${JSON.stringify(
+                peripheralInfo
+              )}`
+            );
+          }
+        );
+
         action(
-          PeripheralsActionTypes.CONNECT_PERIPHERAL_SUCCESS,
+          PeripheralActionTypes.CONNECT_PERIPHERAL_SUCCESS,
           this.peripheralID
         );
       })
@@ -121,7 +136,7 @@ export default class BLEInnoveit implements IBleService {
         // Failure code
         console.log(`BLE INNOVEIT Error: ${error}`);
         action(
-          PeripheralsActionTypes.CONNECT_PERIPHERAL_FAIL,
+          PeripheralActionTypes.CONNECT_PERIPHERAL_FAIL,
           this.peripheralID
         );
       });
@@ -180,7 +195,15 @@ export default class BLEInnoveit implements IBleService {
 
   /** Before write, read or start notification you need to call the retrieveServices method */
   // Notifiable
-  notify(): void { }
+  notify(): void {}
+
+  /** Checks the state of the Bluetooth on the device.
+   * Forces the BleManager to trigger a BleManagerDidUpdateState event. */
+  check(): void {
+    console.log("BleManager.checkState()");
+
+    BleManager.checkState();
+  }
 
   // Listener initialization
   private _addListeners(): void {
@@ -250,28 +273,34 @@ export default class BLEInnoveit implements IBleService {
     // TODO: Add logic to select only Cadence peripheral and ignore others.
     // action(PeripheralsActionTypes.DISCOVER_PERIPHERAL_SUCCESS, peripheral);
     // TODO: testing (replace with Cadence ID)
-    if (peripheral.id.includes("F96AEB4B-5FD7-8BC2-E9C5-6B84F7EADCE6")) {
+    if (peripheral.id.includes(CADENCE_COMPACT_PERIPHERAL_ID)) {
       scanDiscoverSuccess(peripheral);
       BleManager.stopScan().then(() => {
         // Success code
+        this.peripheralID = peripheral.id;
         console.log("I am done scanning. I found my peripheral.");
         action(PeripheralsActionTypes.SCAN_STOP);
-        action(PeripheralsActionTypes.CONNECT_PERIPHERAL_REQUEST, peripheral);
+        action(PeripheralActionTypes.CONNECT_PERIPHERAL_REQUEST);
+        action(PeripheralActionTypes.SUBSCRIBE_TO_PERIPHERAL_REQUEST);
       });
     }
   };
   private _handleConnectPeripheral = (peripheral: IPeripheral): void => {
     console.log(`ON CONNECT PERIPHERAL`);
 
-    action(PeripheralsActionTypes.CONNECT_PERIPHERAL_SUCCESS, peripheral);
+    action(PeripheralActionTypes.CONNECT_PERIPHERAL_SUCCESS, peripheral);
   };
   private _handleDisconnectPeripheral(): void {
     console.log(`ON DISCONNECT PERIPHERAL`);
 
-    action(PeripheralsActionTypes.DISCONNECT_PERIPHERAL_SUCCESS);
+    action(PeripheralActionTypes.DISCONNECT_PERIPHERAL_SUCCESS);
   }
   private _handleUpdateState = (args: any): void => {
-    console.log("_handleUpdateState called!");
+    console.log(`_handleUpdateState called: ${JSON.stringify(args)}`);
+
+    const bluetoothCurrentState: boolean = args.state === "on" ? true : false;
+
+    action(BluetoothActionTypes.BLUETOOTH_CHECK_STATE, bluetoothCurrentState);
   };
   private _handleUpdateValueForCharacteristic = (
     data: ISubscription<any>

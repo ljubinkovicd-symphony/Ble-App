@@ -1,6 +1,4 @@
 import createSagaMiddleware from "redux-saga";
-import peripheralsSaga from "./store/peripherals/sagas";
-import { peripheralsReducer } from "./store/peripherals/reducer";
 import { createStore, applyMiddleware } from "redux";
 import { rootReducer, rootSaga } from "./store";
 

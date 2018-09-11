@@ -3,15 +3,21 @@ import { Navigation } from "react-native-navigation";
 import { Provider } from "react-redux";
 import { store } from "../configureStore";
 
-enum BleScreen {
-  MAIN = "bleDemo.BleScanScreen",
+enum AppScreen {
+  MAIN = "bleDemo.PairingScreen",
   RESULTS = "bleDemo.BleScanResults",
-  DETAILS = "bleDemo.BleScanDetail"
+  DETAILS = "bleDemo.BleScanDetail",
+
+  // Modal screens
+  BLE_DISABLED = "bleDemo.DisabledBleScreen"
 }
 
-export const MAIN_SCREEN: string = BleScreen.MAIN;
-export const RESULTS_SCREEN: string = BleScreen.RESULTS;
-export const DETAIL_SCREEN: string = BleScreen.DETAILS;
+export const MAIN_SCREEN: string = AppScreen.MAIN;
+export const RESULTS_SCREEN: string = AppScreen.RESULTS;
+export const DETAIL_SCREEN: string = AppScreen.DETAILS;
+
+// Modal screens
+export const DISABLED_BLE_SCREEN: string = AppScreen.BLE_DISABLED;
 
 export function registerScreens() {
   Navigation.registerComponentWithRedux(
@@ -28,7 +34,15 @@ export function registerScreens() {
   );
   Navigation.registerComponentWithRedux(
     MAIN_SCREEN,
-    () => require("./BleScanScreen").default,
+    () => require("./PairingScreen").default,
+    Provider,
+    store
+  );
+
+  // Modal screens
+  Navigation.registerComponentWithRedux(
+    DISABLED_BLE_SCREEN,
+    () => require("./DisabledBleModalScreen").default,
     Provider,
     store
   );

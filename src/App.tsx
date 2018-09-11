@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { NavigatorIOS, AppState } from "react-native";
-import BleScanScreen from "./screens/BleScanScreen";
+import PairingScreen from "./screens/PairingScreen";
 import { Store } from "redux";
 import { ApplicationState } from "./store";
 import { Provider, connect } from "react-redux";
@@ -33,7 +33,7 @@ class App extends Component<OwnProps> {
         <NavigatorIOS
           style={{ flex: 1 }}
           initialRoute={{
-            component: BleScanScreen,
+            component: PairingScreen,
             title: "Home"
           }}
         />

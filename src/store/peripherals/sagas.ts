@@ -1,83 +1,20 @@
+import { SELECTED_BLE_LIBRARY } from "./../../bleService/IBleServiceFactory";
 import { all, takeLatest, takeEvery } from "redux-saga/effects";
 import { PeripheralsActionTypes } from "./types";
+import IBLEServiceFactory from "../../bleService/IBleServiceFactory";
 
-import IBLEServiceFactory, {
-  BleServiceLibrary
-} from "../../bleService/IBleServiceFactory";
-
-const bleService = IBLEServiceFactory.getInstance(BleServiceLibrary.Innoveit);
+const bleService = IBLEServiceFactory.getInstance(SELECTED_BLE_LIBRARY);
 
 function* scanPeripherals() {
+  console.log("SAGA: scanPeripherals()");
   yield bleService.startScan();
-}
-
-function* connectPeripheral() {
-  yield bleService.connect();
-}
-
-function* disconnectPeripheral() {
-  yield bleService.disconnect();
-}
-
-function* readFromPeripheral() {
-  yield bleService.read();
-}
-
-function* writeToPeripheral<T>(data: T) {
-  yield bleService.write(data);
-}
-
-function* notifyPeripheral() {
-  yield bleService.notify();
 }
 
 function* watchScanPeripherals() {
   yield takeLatest(PeripheralsActionTypes.SCAN_REQUEST, scanPeripherals);
 }
 
-function* watchConnectPeripheral() {
-  yield takeEvery(
-    PeripheralsActionTypes.CONNECT_PERIPHERAL_REQUEST,
-    connectPeripheral
-  );
-}
-
-function* watchDisconnectPeripheral() {
-  yield takeEvery(
-    PeripheralsActionTypes.DISCONNECT_PERIPHERAL_REQUEST,
-    disconnectPeripheral
-  );
-}
-
-function* watchReadFromPeripheral() {
-  yield takeEvery(
-    PeripheralsActionTypes.READ_PERIPHERAL_REQUEST,
-    readFromPeripheral
-  );
-}
-
-function* watchWriteToPeripheral() {
-  yield takeEvery(
-    PeripheralsActionTypes.WRITE_PERIPHERAL_REQUEST,
-    writeToPeripheral
-  );
-}
-
-function* watchNotifyPeripheral() {
-  yield takeEvery(
-    PeripheralsActionTypes.NOTIFY_PERIPHERAL_REQUEST,
-    notifyPeripheral
-  );
-}
-
 export default function* peripheralsSaga() {
   // yield takeLatest(PeripheralsActionTypes.FETCH_REQUEST, fetchPeripherals);
-  yield all([
-    watchScanPeripherals(),
-    watchConnectPeripheral(),
-    watchDisconnectPeripheral(),
-    watchReadFromPeripheral(),
-    watchWriteToPeripheral(),
-    watchNotifyPeripheral()
-  ]);
+  yield all([watchScanPeripherals()]);
 }

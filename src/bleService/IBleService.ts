@@ -23,6 +23,10 @@ export interface INotifiable {
   notify(): void;
 }
 
+export interface ICheckable {
+  check(): void;
+}
+
 // TODO: Remove this maybe ???
 export interface ListenerCallback {
   onDiscoverPeripheral(peripheral: IPeripheral): void;
@@ -36,7 +40,8 @@ export interface IBleService
     IReadable,
     IWriteable,
     IScanable,
-    INotifiable {
+    INotifiable,
+    ICheckable {
   peripheralID: string;
   serviceUUID: string;
   characteristicUUID: string;
